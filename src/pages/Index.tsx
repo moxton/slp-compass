@@ -1,12 +1,81 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Navigation } from "@/components/Navigation";
+import { PatientInput } from "@/components/PatientInput";
+import { TherapyPlan } from "@/components/TherapyPlan";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { generateTherapyPlan } from "@/services/aiService";
+import { saveTherapyPlan } from "@/services/storageService";
+import { useToast } from "@/hooks/use-toast";
+import type { PatientData, TherapyPlanData } from "@/types";
 
 const Index = () => {
+  const [currentStep, setCurrentStep] = useState<'input' | 'loading' | 'output'>('input');
+  const [therapyPlan, setTherapyPlan] = useState<TherapyPlanData | null>(null);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleGeneratePlan = async (patientData: PatientData) => {
+    setCurrentStep('loading');
+    
+    try {
+      const plan = await generateTherapyPlan(patientData);
+      setTherapyPlan(plan);
+      saveTherapyPlan(plan);
+      setCurrentStep('output');
+      
+      toast({
+        title: "Therapy Plan Generated",
+        description: "Your individualized therapy plan has been created successfully.",
+      });
+    } catch (error) {
+      console.error('Error generating therapy plan:', error);
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate therapy plan. Please check your API key and try again.",
+        variant: "destructive",
+      });
+      setCurrentStep('input');
+    }
+  };
+
+  const handleNewPlan = () => {
+    setCurrentStep('input');
+    setTherapyPlan(null);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <Navigation onHistoryClick={() => navigate('/history')} />
+      
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-slate-800 mb-4">
+              AI Therapy Planner
+            </h1>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Generate evidence-based therapy plans and SMART objectives for pediatric patients with communication disorders
+            </p>
+          </div>
+
+          {currentStep === 'input' && (
+            <PatientInput onSubmit={handleGeneratePlan} />
+          )}
+
+          {currentStep === 'loading' && (
+            <LoadingSpinner />
+          )}
+
+          {currentStep === 'output' && therapyPlan && (
+            <TherapyPlan 
+              plan={therapyPlan} 
+              onNewPlan={handleNewPlan}
+            />
+          )}
+        </div>
+      </main>
     </div>
   );
 };
