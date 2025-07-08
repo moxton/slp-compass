@@ -30,6 +30,7 @@ export const ExamplePlans = () => {
            `TREATMENT PROTOCOL:\n` +
            `Duration & Frequency: ${plan.treatmentProtocol.duration}, ${plan.treatmentProtocol.frequency}\n\n` +
            `Target Skills:\n${plan.treatmentProtocol.targets.map((t: string) => `• ${t}`).join('\n')}\n\n` +
+           `ENGAGEMENT IDEAS:\n${plan.engagementIdeas.map((idea: string) => `• ${idea}`).join('\n')}\n\n` +
            `REFERENCES:\n${plan.treatmentProtocol.references.map((r: string) => `• ${r}`).join('\n')}`;
   };
 
@@ -97,6 +98,18 @@ export const ExamplePlans = () => {
                     </Badge>
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-slate-800 mb-2">Engagement Ideas:</h4>
+                <ul className="text-sm text-slate-700 space-y-1">
+                  {plan.engagementIdeas.slice(0, 2).map((idea, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="w-1 h-1 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                      {idea}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               <div>

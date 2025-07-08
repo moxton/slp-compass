@@ -44,4 +44,5 @@ export interface ExamplePlan {
     targets: string[];
     references: string[];
   };
+  engagementIdeas: string[];
 }

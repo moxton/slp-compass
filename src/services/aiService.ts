@@ -14,7 +14,7 @@ export const generateTherapyPlan = async (patientData: PatientData): Promise<The
     localStorage.setItem('openai_api_key', userApiKey);
   }
 
-  const prompt = createTherapyPlanPrompt(patientData);
+  const therapyPrompt = createTherapyPlanPrompt(patientData);
 
   const response = await fetch(OPENAI_API_URL, {
     method: 'POST',
@@ -31,7 +31,7 @@ export const generateTherapyPlan = async (patientData: PatientData): Promise<The
         },
         {
           role: 'user',
-          content: prompt
+          content: therapyPrompt
         }
       ],
       temperature: 0.7,

@@ -23,7 +23,13 @@ export const examplePlans: ExamplePlan[] = [
         "Bowen, C. (2015). Children's Speech Sound Disorders. Wiley-Blackwell",
         "ASHA Practice Portal: Speech Sound Disorders-Articulation and Phonology"
       ]
-    }
+    },
+    engagementIdeas: [
+      "Create a 'Robot Voice' game where correct /r/ sounds activate robot movements",
+      "Use mirror play for visual feedback during tongue placement practice",
+      "Incorporate /s/ sound practice into 'Snake Stories' with toy snakes",
+      "Design treasure hunts where finding items requires correct sound production"
+    ]
   },
   {
     disorderArea: "fluency",
@@ -46,7 +52,13 @@ export const examplePlans: ExamplePlan[] = [
         "Guitar, B. (2019). Stuttering: An Integrated Approach to its Nature and Treatment",
         "Stuttering Foundation of America Clinical Guidelines"
       ]
-    }
+    },
+    engagementIdeas: [
+      "Practice 'Turtle Talk' - slow, smooth speech like a wise turtle",
+      "Use breathing exercises with bubbles or pinwheels for easy onset",
+      "Create 'Smooth Speech Superhero' scenarios with confidence building",
+      "Incorporate rhythm and music for natural speech flow practice"
+    ]
   },
   {
     disorderArea: "expressive-language",
@@ -69,7 +81,13 @@ export const examplePlans: ExamplePlan[] = [
         "Paul, R. & Norbury, C. (2012). Language Disorders from Infancy through Adolescence",
         "ASHA Evidence Maps: Language Intervention"
       ]
-    }
+    },
+    engagementIdeas: [
+      "Use story cubes and dice to create fun narrative adventures",
+      "Practice sentence building with colorful magnetic word tiles",
+      "Create comic strips where characters need complete sentences to 'speak'",
+      "Use cooking activities to practice following and giving multi-step directions"
+    ]
   },
   {
     disorderArea: "social-pragmatics",
@@ -92,6 +110,12 @@ export const examplePlans: ExamplePlan[] = [
         "Winner, M.G. (2007). Thinking About YOU Thinking About ME",
         "Social Thinking Methodology and ASHA Social Communication Guidelines"
       ]
-    }
+    },
+    engagementIdeas: [
+      "Use puppet shows to practice conversations and social scenarios",
+      "Create 'Detective Games' to identify emotions and social cues",
+      "Practice turn-taking with board games and structured play activities",
+      "Use video modeling with favorite characters demonstrating social skills"
+    ]
   }
 ];
