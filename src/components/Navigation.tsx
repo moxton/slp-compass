@@ -8,10 +8,16 @@ interface NavigationProps {
 
 const SpeechLogo = () => (
   <div className="relative w-8 h-8">
+    {/* Speech bubble */}
     <div className="absolute inset-0 bg-blue-600 rounded-full"></div>
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-3 bg-white rounded-sm"></div>
-    <div className="absolute top-1/2 right-1 w-2 h-1 bg-blue-600 transform -translate-y-1/2 rounded-full"></div>
-    <div className="absolute top-1/2 right-0 w-1 h-1 bg-blue-600 transform -translate-y-1/2 rounded-full"></div>
+    <div className="absolute top-1 left-1 w-5 h-4 bg-white rounded-lg"></div>
+    {/* Speech dots */}
+    <div className="absolute top-2 left-2 w-1 h-1 bg-blue-600 rounded-full"></div>
+    <div className="absolute top-2 left-3.5 w-1 h-1 bg-blue-600 rounded-full"></div>
+    <div className="absolute top-2 left-5 w-1 h-1 bg-blue-600 rounded-full"></div>
+    {/* Small speech tail */}
+    <div className="absolute bottom-0 right-1 w-2 h-2 bg-blue-600 rounded-full transform rotate-45"></div>
+    <div className="absolute bottom-0.5 right-1.5 w-1 h-1 bg-white rounded-full"></div>
   </div>
 );
 

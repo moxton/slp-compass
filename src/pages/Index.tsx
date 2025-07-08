@@ -6,7 +6,7 @@ import { PatientInput } from "@/components/PatientInput";
 import { TherapyPlan } from "@/components/TherapyPlan";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ExamplePlans } from "@/components/ExamplePlans";
-import { generateTherapyPlan } from "@/services/aiService";
+import { generateTherapyPlan, generateTreatmentProtocol } from "@/services/aiService";
 import { saveTherapyPlan } from "@/services/storageService";
 import { useToast } from "@/hooks/use-toast";
 import type { PatientData, TherapyPlanData } from "@/types";
@@ -41,6 +41,30 @@ const Index = () => {
     }
   };
 
+  const handleManualGoalSubmit = async (data: PatientData & { manualGoals: { longTermGoal: string; objectives: string[] } }) => {
+    setCurrentStep('loading');
+    
+    try {
+      const plan = await generateTreatmentProtocol(data);
+      setTherapyPlan(plan);
+      saveTherapyPlan(plan);
+      setCurrentStep('output');
+      
+      toast({
+        title: "Treatment Protocol Generated",
+        description: "Your treatment protocol and engagement ideas have been created successfully.",
+      });
+    } catch (error) {
+      console.error('Error generating treatment protocol:', error);
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate treatment protocol. Please check your API key and try again.",
+        variant: "destructive",
+      });
+      setCurrentStep('input');
+    }
+  };
+
   const handleNewPlan = () => {
     setCurrentStep('input');
     setTherapyPlan(null);
@@ -63,7 +87,10 @@ const Index = () => {
 
           {currentStep === 'input' && (
             <div className="space-y-12">
-              <PatientInput onSubmit={handleGeneratePlan} />
+              <PatientInput 
+                onSubmit={handleGeneratePlan}
+                onManualSubmit={handleManualGoalSubmit}
+              />
               <ExamplePlans />
             </div>
           )}
