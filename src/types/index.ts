@@ -2,6 +2,7 @@
 export interface PatientData {
   age: number;
   disorderArea: string;
+  secondaryDisorderArea?: string;
   description: string;
 }
 
@@ -21,6 +22,7 @@ export interface TreatmentProtocol {
   targets: string[];
   hierarchy: string[];
   prompts: string[];
+  references: string[];
 }
 
 export interface TherapyPlanData {
@@ -30,4 +32,16 @@ export interface TherapyPlanData {
   objectives: Objective[];
   treatmentProtocol: TreatmentProtocol;
   createdAt: string;
+}
+
+export interface ExamplePlan {
+  disorderArea: string;
+  longTermGoal: string;
+  objectives: string[];
+  treatmentProtocol: {
+    duration: string;
+    frequency: string;
+    targets: string[];
+    references: string[];
+  };
 }

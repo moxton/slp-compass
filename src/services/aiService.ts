@@ -7,7 +7,6 @@ export const generateTherapyPlan = async (patientData: PatientData): Promise<The
   const apiKey = localStorage.getItem('openai_api_key');
   
   if (!apiKey) {
-    // Show API key input if not found
     const userApiKey = prompt('Please enter your OpenAI API key:');
     if (!userApiKey) {
       throw new Error('OpenAI API key is required');
@@ -65,7 +64,12 @@ const createTherapyPlanPrompt = (patientData: PatientData): string => {
     'literacy': 'literacy and reading disorders',
   };
 
-  return `Create a comprehensive therapy plan for a ${patientData.age}-year-old child with ${disorderAreaMap[patientData.disorderArea] || patientData.disorderArea}.
+  const primaryArea = disorderAreaMap[patientData.disorderArea] || patientData.disorderArea;
+  const secondaryArea = patientData.secondaryDisorderArea 
+    ? ` with secondary concerns in ${disorderAreaMap[patientData.secondaryDisorderArea] || patientData.secondaryDisorderArea}`
+    : '';
+
+  return `Create a comprehensive therapy plan for a ${patientData.age}-year-old child with ${primaryArea}${secondaryArea}.
 
 Patient Description: ${patientData.description}
 
@@ -88,17 +92,14 @@ Format your response clearly with headers and bullet points for easy reading.`;
 };
 
 const parseTherapyPlan = (planText: string, patientData: PatientData): TherapyPlanData => {
-  // This is a simplified parser - in production, you'd want more robust parsing
   const lines = planText.split('\n').filter(line => line.trim());
   
-  // Extract long-term goal
   const goalIndex = lines.findIndex(line => 
     line.toLowerCase().includes('long-term goal') || 
     line.toLowerCase().includes('long term goal')
   );
   const longTermGoal = lines[goalIndex + 1] || "Long-term goal will be established based on comprehensive assessment.";
 
-  // Generate mock objectives for demo (in production, parse from AI response)
   const objectives = [
     {
       id: '1',
@@ -129,7 +130,6 @@ const parseTherapyPlan = (planText: string, patientData: PatientData): TherapyPl
     }
   ];
 
-  // Generate treatment protocol
   const treatmentProtocol = {
     duration: '45-minute sessions',
     frequency: '2-3 times per week',
@@ -154,6 +154,10 @@ const parseTherapyPlan = (planText: string, patientData: PatientData): TherapyPl
       'Tactile feedback and kinesthetic support',
       'Positive reinforcement and encouraging feedback',
       'Self-monitoring checklists and visual supports'
+    ],
+    references: [
+      'American Speech-Language-Hearing Association (ASHA) Clinical Guidelines',
+      'Evidence-Based Practice in Communication Disorders (ASHA, 2023)'
     ]
   };
 

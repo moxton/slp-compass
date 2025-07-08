@@ -5,6 +5,7 @@ import { Navigation } from "@/components/Navigation";
 import { PatientInput } from "@/components/PatientInput";
 import { TherapyPlan } from "@/components/TherapyPlan";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { ExamplePlans } from "@/components/ExamplePlans";
 import { generateTherapyPlan } from "@/services/aiService";
 import { saveTherapyPlan } from "@/services/storageService";
 import { useToast } from "@/hooks/use-toast";
@@ -50,18 +51,21 @@ const Index = () => {
       <Navigation onHistoryClick={() => navigate('/history')} />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-slate-800 mb-4">
               AI Therapy Planner
             </h1>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
               Generate evidence-based therapy plans and SMART objectives for pediatric patients with communication disorders
             </p>
           </div>
 
           {currentStep === 'input' && (
-            <PatientInput onSubmit={handleGeneratePlan} />
+            <div className="space-y-12">
+              <PatientInput onSubmit={handleGeneratePlan} />
+              <ExamplePlans />
+            </div>
           )}
 
           {currentStep === 'loading' && (

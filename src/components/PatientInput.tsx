@@ -4,29 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Sparkles } from "lucide-react";
+import { DisorderAreaInput } from "./DisorderAreaInput";
 import type { PatientData } from "@/types";
 
 interface PatientInputProps {
   onSubmit: (data: PatientData) => void;
 }
 
-const disorderAreas = [
-  { value: "articulation-phonology", label: "Articulation/Phonology" },
-  { value: "fluency", label: "Fluency" },
-  { value: "expressive-language", label: "Expressive Language" },
-  { value: "receptive-language", label: "Receptive Language" },
-  { value: "social-pragmatics", label: "Social-Pragmatics" },
-  { value: "executive-function", label: "Executive Function" },
-  { value: "literacy", label: "Literacy" },
-];
-
 export const PatientInput = ({ onSubmit }: PatientInputProps) => {
   const [formData, setFormData] = useState({
     age: "",
     disorderArea: "",
+    secondaryDisorderArea: "",
     description: "",
   });
 
@@ -40,6 +31,7 @@ export const PatientInput = ({ onSubmit }: PatientInputProps) => {
     onSubmit({
       age: parseInt(formData.age),
       disorderArea: formData.disorderArea,
+      secondaryDisorderArea: formData.secondaryDisorderArea === 'none' ? undefined : formData.secondaryDisorderArea || undefined,
       description: formData.description.trim(),
     });
   };
@@ -47,7 +39,7 @@ export const PatientInput = ({ onSubmit }: PatientInputProps) => {
   const isFormValid = formData.age && formData.disorderArea && formData.description.trim();
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-3xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-blue-600" />
@@ -56,7 +48,7 @@ export const PatientInput = ({ onSubmit }: PatientInputProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <Label htmlFor="age">Patient Age</Label>
               <Input
@@ -71,24 +63,20 @@ export const PatientInput = ({ onSubmit }: PatientInputProps) => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="disorder">Primary Disorder Area</Label>
-              <Select
-                value={formData.disorderArea}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, disorderArea: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select disorder area" />
-                </SelectTrigger>
-                <SelectContent>
-                  {disorderAreas.map((area) => (
-                    <SelectItem key={area.value} value={area.value}>
-                      {area.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <DisorderAreaInput
+              label="Primary Disorder Area"
+              value={formData.disorderArea}
+              onChange={(value) => setFormData(prev => ({ ...prev, disorderArea: value }))}
+              placeholder="Select primary disorder area"
+            />
+
+            <DisorderAreaInput
+              label="Secondary Disorder Area"
+              value={formData.secondaryDisorderArea}
+              onChange={(value) => setFormData(prev => ({ ...prev, secondaryDisorderArea: value }))}
+              placeholder="Select secondary area (optional)"
+              includeNone={true}
+            />
           </div>
 
           <div className="space-y-2">
