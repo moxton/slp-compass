@@ -1,5 +1,12 @@
-
 import { z } from 'zod';
+
+// Custom validation error class
+export class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
 
 // Schema for patient data validation
 export const patientDataSchema = z.object({
@@ -55,7 +62,14 @@ export const validatePatientData = (data: any) => {
     description: sanitizeHtml(data.description),
   };
 
-  return patientDataSchema.parse(sanitizedData);
+  try {
+    return patientDataSchema.parse(sanitizedData);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new ValidationError(error.errors.map(e => e.message).join(', '));
+    }
+    throw new ValidationError('Invalid data provided');
+  }
 };
 
 // Validate and sanitize manual goals
@@ -65,7 +79,14 @@ export const validateManualGoals = (data: any) => {
     objectives: data.objectives.map((obj: string) => sanitizeHtml(obj)),
   };
 
-  return manualGoalsSchema.parse(sanitizedData);
+  try {
+    return manualGoalsSchema.parse(sanitizedData);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new ValidationError(error.errors.map(e => e.message).join(', '));
+    }
+    throw new ValidationError('Invalid manual goals provided');
+  }
 };
 
 // Rate limiting utility

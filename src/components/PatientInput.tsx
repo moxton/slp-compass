@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -135,6 +134,7 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
     }
 
     try {
+      // Ensure all required fields are properly typed
       const patientData: PatientData = {
         age: parseInt(formData.age),
         disorderArea: formData.disorderArea,
