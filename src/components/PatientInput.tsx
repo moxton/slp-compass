@@ -59,14 +59,14 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
   if (showOutputSelection) {
     return (
       <div className="space-y-6">
-        <Card className="w-full max-w-3xl mx-auto">
+        <Card className="w-full max-w-4xl mx-auto">
           <CardContent className="pt-6">
-            <div className="text-sm text-slate-600 mb-4">
-              <strong>Patient:</strong> {formData.patientInitials || 'Not specified'} | 
-              <strong> Age:</strong> {formData.age} | 
-              <strong> Primary Area:</strong> {formData.disorderArea}
+            <div className="text-sm text-slate-600 mb-4 flex flex-wrap gap-4">
+              <span><strong>Patient:</strong> {formData.patientInitials || 'Not specified'}</span>
+              <span><strong>Age:</strong> {formData.age}</span>
+              <span><strong>Primary Area:</strong> {formData.disorderArea}</span>
               {formData.secondaryDisorderArea && formData.secondaryDisorderArea !== 'none' && (
-                <span> | <strong>Secondary Area:</strong> {formData.secondaryDisorderArea}</span>
+                <span><strong>Secondary Area:</strong> {formData.secondaryDisorderArea}</span>
               )}
             </div>
             <button
@@ -83,7 +83,7 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-blue-600" />
@@ -91,8 +91,9 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleBasicFormSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <form onSubmit={handleBasicFormSubmit} className="space-y-8">
+          {/* Top row - Basic info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
               <Label htmlFor="initials">Patient Initials (Optional)</Label>
               <Input
@@ -101,7 +102,7 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
                 placeholder="e.g. J.S."
                 value={formData.patientInitials}
                 onChange={(e) => setFormData(prev => ({ ...prev, patientInitials: e.target.value }))}
-                className="text-lg"
+                className="text-lg h-12"
               />
             </div>
 
@@ -115,11 +116,14 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
                 placeholder="Enter age (2-18)"
                 value={formData.age}
                 onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value }))}
-                className="text-lg"
+                className="text-lg h-12"
                 required
               />
             </div>
+          </div>
 
+          {/* Middle row - Disorder areas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <DisorderAreaInput
               label="Primary Disorder Area *"
               value={formData.disorderArea}
@@ -136,14 +140,15 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
             />
           </div>
 
-          <div className="space-y-2">
+          {/* Bottom section - Description */}
+          <div className="space-y-3">
             <Label htmlFor="description">Patient Description *</Label>
             <Textarea
               id="description"
               placeholder="Describe the patient's symptoms, strengths, and specific needs. Include relevant background information, current abilities, and areas of concern."
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              className="min-h-32 text-base"
+              className="min-h-32 text-base resize-none"
               required
             />
             <p className="text-sm text-slate-500">
@@ -153,7 +158,7 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
             disabled={!isBasicFormValid}
           >
             Continue to Output Selection
