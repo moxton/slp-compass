@@ -134,7 +134,11 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
     }
 
     try {
-      // Ensure all required fields are properly typed
+      // Ensure all required fields are properly typed and validated
+      if (!formData.age || !formData.disorderArea || !formData.description.trim()) {
+        throw new ValidationError("Required fields are missing");
+      }
+
       const patientData: PatientData = {
         age: parseInt(formData.age),
         disorderArea: formData.disorderArea,
@@ -147,9 +151,19 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
       const validatedPatientData = validatePatientData(patientData);
 
       if (goalOption === "manual" && longTermGoal.trim() && objectives.some(obj => obj.trim())) {
+        // Ensure manual goals have required values
+        if (!longTermGoal.trim()) {
+          throw new ValidationError("Long-term goal is required");
+        }
+        
+        const filteredObjectives = objectives.filter(obj => obj.trim());
+        if (filteredObjectives.length === 0) {
+          throw new ValidationError("At least one objective is required");
+        }
+
         const manualGoals = {
           longTermGoal: longTermGoal.trim(),
-          objectives: objectives.filter(obj => obj.trim()),
+          objectives: filteredObjectives,
         };
 
         // Validate manual goals
