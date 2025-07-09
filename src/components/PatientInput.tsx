@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -139,6 +140,7 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
         throw new ValidationError("Required fields are missing");
       }
 
+      // Create PatientData with explicit required properties
       const patientData: PatientData = {
         age: parseInt(formData.age),
         disorderArea: formData.disorderArea,
@@ -161,7 +163,8 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
           throw new ValidationError("At least one objective is required");
         }
 
-        const manualGoals = {
+        // Create manual goals with explicit required properties
+        const manualGoals: { longTermGoal: string; objectives: string[] } = {
           longTermGoal: longTermGoal.trim(),
           objectives: filteredObjectives,
         };
