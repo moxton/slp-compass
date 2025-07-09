@@ -133,7 +133,7 @@ export const usePatientForm = ({ onSubmit, onManualSubmit }: PatientInputProps) 
 
       const validatedPatientData = validatePatientData(patientData);
 
-      if (goalOption === "manual" && longTermGoal.trim() && objectives.some(obj => obj.trim())) {
+      if (goalOption === "manual") {
         if (!longTermGoal.trim()) {
           throw new ValidationError("Long-term goal is required");
         }
