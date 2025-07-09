@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import { DisorderAreaInput } from "./DisorderAreaInput";
@@ -155,17 +155,21 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
           <div className="border-t pt-8">
             <h3 className="text-lg font-semibold mb-6">Select Outputs to Generate</h3>
             <div className="space-y-6">
-              <div className="space-y-3">
-                <Label>Goals and Objectives</Label>
-                <Select value={goalOption} onValueChange={setGoalOption}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose an option for goals and objectives" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="create">Create long-term goals and SMART objectives</SelectItem>
-                    <SelectItem value="manual">I want to enter my own goals and objectives</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-4">
+                <RadioGroup value={goalOption} onValueChange={setGoalOption}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="create" id="create-goals" />
+                    <Label htmlFor="create-goals" className="text-sm font-medium">
+                      Create long-term goals and SMART objectives
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="manual" id="manual-goals" />
+                    <Label htmlFor="manual-goals" className="text-sm font-medium">
+                      I want to enter my own goals and objectives
+                    </Label>
+                  </div>
+                </RadioGroup>
 
                 {goalOption === "manual" && (
                   <div className="ml-6 space-y-4 p-4 bg-slate-50 rounded-lg">
