@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -140,12 +141,12 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
         throw new ValidationError("Required fields are missing");
       }
 
-      // Create PatientData with explicit required properties
+      // Create PatientData with explicit required properties - ensure all are defined
       const patientData: PatientData = {
-        age: parseInt(formData.age),
-        disorderArea: formData.disorderArea,
+        age: parseInt(formData.age), // This is guaranteed to be a number due to validation above
+        disorderArea: formData.disorderArea, // This is guaranteed to be a string due to validation above
         secondaryDisorderArea: formData.secondaryDisorderArea === 'none' ? undefined : formData.secondaryDisorderArea || undefined,
-        description: formData.description.trim(),
+        description: formData.description.trim(), // This is guaranteed to be a string due to validation above
         patientInitials: formData.patientInitials || undefined,
       };
 
@@ -153,7 +154,7 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
       const validatedPatientData = validatePatientData(patientData);
 
       if (goalOption === "manual" && longTermGoal.trim() && objectives.some(obj => obj.trim())) {
-        // Ensure manual goals have required values
+        // Ensure manual goals have required values - validate before creating object
         if (!longTermGoal.trim()) {
           throw new ValidationError("Long-term goal is required");
         }
@@ -163,10 +164,10 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
           throw new ValidationError("At least one objective is required");
         }
 
-        // Create manual goals with explicit required properties
-        const manualGoals: { longTermGoal: string; objectives: string[] } = {
-          longTermGoal: longTermGoal.trim(),
-          objectives: filteredObjectives,
+        // Create manual goals with explicit required properties - ensure all are defined
+        const manualGoals = {
+          longTermGoal: longTermGoal.trim(), // This is guaranteed to be a non-empty string
+          objectives: filteredObjectives, // This is guaranteed to be a non-empty array
         };
 
         // Validate manual goals
