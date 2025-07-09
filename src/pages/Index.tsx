@@ -81,7 +81,7 @@ const Index = () => {
               SLP Compass
             </h1>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Generate evidence-based therapy plans and SMART objectives for pediatric patients with communication disorders
+              Effortless, evidence-based therapy planning for speech-language pathologists
             </p>
           </div>
 

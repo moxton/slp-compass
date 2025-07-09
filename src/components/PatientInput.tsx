@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import { DisorderAreaInput } from "./DisorderAreaInput";
-import { OutputSelection } from "./OutputSelection";
 import type { PatientData } from "@/types";
 
 interface PatientInputProps {
@@ -15,7 +17,6 @@ interface PatientInputProps {
 }
 
 export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) => {
-  const [showOutputSelection, setShowOutputSelection] = useState(false);
   const [formData, setFormData] = useState({
     patientInitials: "",
     age: "",
@@ -24,10 +25,36 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
     description: "",
   });
 
-  const handleOutputSelection = (selections: any) => {
-    if (!formData.age || !formData.disorderArea || !formData.description.trim()) {
-      return;
+  const [goalOption, setGoalOption] = useState<string>("");
+  const [longTermGoal, setLongTermGoal] = useState("");
+  const [objectives, setObjectives] = useState(["", "", ""]);
+  const [createProtocol, setCreateProtocol] = useState(false);
+  const [createEngagement, setCreateEngagement] = useState(false);
+  const [createDataSheets, setCreateDataSheets] = useState(false);
+
+  const updateObjective = (index: number, value: string) => {
+    setObjectives(prev => prev.map((obj, i) => i === index ? value : obj));
+  };
+
+  const addObjective = () => {
+    setObjectives(prev => [...prev, ""]);
+  };
+
+  const removeObjective = (index: number) => {
+    if (objectives.length > 1) {
+      setObjectives(prev => prev.filter((_, i) => i !== index));
     }
+  };
+
+  const isBasicFormValid = formData.age && formData.disorderArea && formData.description.trim();
+  const hasSelections = goalOption || createProtocol || createEngagement || createDataSheets;
+  const canSubmit = isBasicFormValid && hasSelections && 
+    (goalOption !== "manual" || (longTermGoal.trim() && objectives.some(obj => obj.trim())));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!canSubmit) return;
 
     const patientData: PatientData = {
       age: parseInt(formData.age),
@@ -37,50 +64,18 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
       patientInitials: formData.patientInitials || undefined,
     };
 
-    if (selections.manualGoals) {
+    if (goalOption === "manual" && longTermGoal.trim() && objectives.some(obj => obj.trim())) {
       onManualSubmit({
         ...patientData,
-        manualGoals: selections.manualGoals,
+        manualGoals: {
+          longTermGoal: longTermGoal.trim(),
+          objectives: objectives.filter(obj => obj.trim()),
+        },
       });
     } else {
       onSubmit(patientData);
     }
   };
-
-  const isBasicFormValid = formData.age && formData.disorderArea && formData.description.trim();
-
-  const handleBasicFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isBasicFormValid) {
-      setShowOutputSelection(true);
-    }
-  };
-
-  if (showOutputSelection) {
-    return (
-      <div className="space-y-6">
-        <Card className="w-full max-w-4xl mx-auto">
-          <CardContent className="pt-6">
-            <div className="text-sm text-slate-600 mb-4 flex flex-wrap gap-4">
-              <span><strong>Patient:</strong> {formData.patientInitials || 'Not specified'}</span>
-              <span><strong>Age:</strong> {formData.age}</span>
-              <span><strong>Primary Area:</strong> {formData.disorderArea}</span>
-              {formData.secondaryDisorderArea && formData.secondaryDisorderArea !== 'none' && (
-                <span><strong>Secondary Area:</strong> {formData.secondaryDisorderArea}</span>
-              )}
-            </div>
-            <button
-              onClick={() => setShowOutputSelection(false)}
-              className="text-blue-600 text-sm hover:underline"
-            >
-              ← Edit patient information
-            </button>
-          </CardContent>
-        </Card>
-        <OutputSelection onSubmit={handleOutputSelection} />
-      </div>
-    );
-  }
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -91,7 +86,7 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleBasicFormSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Top row - Basic info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
@@ -156,12 +151,118 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
             </p>
           </div>
 
+          {/* Output Selection Section */}
+          <div className="border-t pt-8">
+            <h3 className="text-lg font-semibold mb-6">Select Outputs to Generate</h3>
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <Label>Goals and Objectives</Label>
+                <Select value={goalOption} onValueChange={setGoalOption}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose an option for goals and objectives" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="create">Create long-term goals and SMART objectives</SelectItem>
+                    <SelectItem value="manual">I want to enter my own goals and objectives</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {goalOption === "manual" && (
+                  <div className="ml-6 space-y-4 p-4 bg-slate-50 rounded-lg">
+                    <div className="space-y-2">
+                      <Label htmlFor="longTermGoal">Long-term Goal</Label>
+                      <Textarea
+                        id="longTermGoal"
+                        placeholder="Enter the long-term goal for this patient..."
+                        value={longTermGoal}
+                        onChange={(e) => setLongTermGoal(e.target.value)}
+                        className="min-h-20 text-sm"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label>Short-term Objectives</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addObjective}
+                          className="text-xs"
+                        >
+                          Add Objective
+                        </Button>
+                      </div>
+                      
+                      {objectives.map((objective, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <Input
+                              placeholder={`Objective ${index + 1}`}
+                              value={objective}
+                              onChange={(e) => updateObjective(index, e.target.value)}
+                              className="text-sm"
+                            />
+                          </div>
+                          {objectives.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeObjective(index)}
+                              className="text-xs"
+                            >
+                              Remove
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="create-protocol"
+                  checked={createProtocol}
+                  onCheckedChange={(checked) => setCreateProtocol(!!checked)}
+                />
+                <Label htmlFor="create-protocol" className="text-sm font-medium">
+                  Create evidence-based treatment protocols with specifics (duration, frequency, targets, hierarchy, prompts, etc)
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="create-engagement"
+                  checked={createEngagement}
+                  onCheckedChange={(checked) => setCreateEngagement(!!checked)}
+                />
+                <Label htmlFor="create-engagement" className="text-sm font-medium">
+                  Create ideas for age appropriate implementation to make therapy fun and engaging (thematic materials, games, toys, manipulatives, etc)
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="create-data-sheets"
+                  checked={createDataSheets}
+                  onCheckedChange={(checked) => setCreateDataSheets(!!checked)}
+                />
+                <Label htmlFor="create-data-sheets" className="text-sm font-medium">
+                  Create spreadsheets that correspond with objectives for data collection
+                </Label>
+              </div>
+            </div>
+          </div>
+
           <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
-            disabled={!isBasicFormValid}
+            disabled={!canSubmit}
           >
-            Continue to Output Selection
+            Generate Selected Outputs
           </button>
         </form>
       </CardContent>
