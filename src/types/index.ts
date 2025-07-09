@@ -1,9 +1,9 @@
-
 export interface PatientData {
   age: number;
   disorderArea: string;
   secondaryDisorderArea?: string;
   description: string;
+  patientInitials?: string;
 }
 
 export interface Objective {

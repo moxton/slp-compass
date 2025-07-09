@@ -1,48 +1,22 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Copy, BookOpen, ExternalLink } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { BookOpen, ExternalLink } from "lucide-react";
 import { examplePlans } from "@/data/examplePlans";
 
 export const ExamplePlans = () => {
-  const { toast } = useToast();
-
-  const copyToClipboard = (content: string) => {
-    navigator.clipboard.writeText(content);
-    toast({
-      title: "Copied to clipboard",
-      description: "Example plan has been copied to your clipboard.",
-    });
-  };
-
   const formatDisorderArea = (area: string) => {
     return area.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
 
-  const getFullPlanText = (plan: any) => {
-    return `EXAMPLE THERAPY PLAN - ${formatDisorderArea(plan.disorderArea).toUpperCase()}\n\n` +
-           `LONG-TERM GOAL:\n${plan.longTermGoal}\n\n` +
-           `OBJECTIVES:\n${plan.objectives.map((obj: string, i: number) => `${i + 1}. ${obj}`).join('\n')}\n\n` +
-           `TREATMENT PROTOCOL:\n` +
-           `Duration & Frequency: ${plan.treatmentProtocol.duration}, ${plan.treatmentProtocol.frequency}\n\n` +
-           `Target Skills:\n${plan.treatmentProtocol.targets.map((t: string) => `• ${t}`).join('\n')}\n\n` +
-           `ENGAGEMENT IDEAS:\n${plan.engagementIdeas.map((idea: string) => `• ${idea}`).join('\n')}\n\n` +
-           `REFERENCES:\n${plan.treatmentProtocol.references.map((r: string) => `• ${r}`).join('\n')}`;
-  };
-
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-slate-800 mb-2">
-          Example Therapy Plans & Goal Bank
+          Example Therapy Plans
         </h2>
-        <p className="text-slate-600">
-          Browse sample goals and treatment protocols to get started quickly
-        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -53,20 +27,14 @@ export const ExamplePlans = () => {
                 <div>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <BookOpen className="w-5 h-5 text-blue-600" />
-                    {formatDisorderArea(plan.disorderArea)}
+                    <div>
+                      <div>Example Plan</div>
+                      <div className="text-sm font-normal text-slate-600">
+                        ({formatDisorderArea(plan.disorderArea)})
+                      </div>
+                    </div>
                   </CardTitle>
-                  <Badge variant="secondary" className="mt-2">
-                    Example Plan
-                  </Badge>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyToClipboard(getFullPlanText(plan))}
-                >
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy
-                </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">

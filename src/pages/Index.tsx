@@ -77,8 +77,8 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-slate-800 mb-4">
-              Speech Plan
+            <h1 className="text-4xl font-bold text-blue-600 mb-4">
+              SLP Compass
             </h1>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
               Generate evidence-based therapy plans and SMART objectives for pediatric patients with communication disorders
