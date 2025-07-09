@@ -7,8 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { Sparkles, AlertTriangle } from "lucide-react";
 import { DisorderAreaInput } from "./DisorderAreaInput";
+import { validatePatientData, validateManualGoals, ValidationError } from "@/utils/validation";
+import { useToast } from "@/hooks/use-toast";
 import type { PatientData } from "@/types";
 
 interface PatientInputProps {
@@ -31,12 +33,32 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
   const [createProtocol, setCreateProtocol] = useState(false);
   const [createEngagement, setCreateEngagement] = useState(false);
   const [createDataSheets, setCreateDataSheets] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  const { toast } = useToast();
 
   const updateObjective = (index: number, value: string) => {
+    // Limit objective length for security
+    if (value.length > 500) {
+      toast({
+        title: "Input Too Long",
+        description: "Each objective must be less than 500 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
     setObjectives(prev => prev.map((obj, i) => i === index ? value : obj));
   };
 
   const addObjective = () => {
+    if (objectives.length >= 10) {
+      toast({
+        title: "Maximum Objectives Reached",
+        description: "You can add a maximum of 10 objectives.",
+        variant: "destructive",
+      });
+      return;
+    }
     setObjectives(prev => [...prev, ""]);
   };
 
@@ -44,6 +66,55 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
     if (objectives.length > 1) {
       setObjectives(prev => prev.filter((_, i) => i !== index));
     }
+  };
+
+  const validateForm = () => {
+    const errors: string[] = [];
+    setValidationErrors([]);
+
+    // Basic form validation
+    if (!formData.age || parseInt(formData.age) < 2 || parseInt(formData.age) > 18) {
+      errors.push("Patient age must be between 2 and 18 years");
+    }
+
+    if (!formData.disorderArea) {
+      errors.push("Primary disorder area is required");
+    }
+
+    if (!formData.description.trim() || formData.description.trim().length < 10) {
+      errors.push("Patient description must be at least 10 characters");
+    }
+
+    if (formData.description.length > 2000) {
+      errors.push("Patient description must be less than 2000 characters");
+    }
+
+    if (!goalOption) {
+      errors.push("Please select how you want to handle goals and objectives");
+    }
+
+    if (goalOption === "manual") {
+      if (!longTermGoal.trim() || longTermGoal.trim().length < 10) {
+        errors.push("Long-term goal must be at least 10 characters");
+      }
+      if (longTermGoal.length > 1000) {
+        errors.push("Long-term goal must be less than 1000 characters");
+      }
+      if (!objectives.some(obj => obj.trim())) {
+        errors.push("At least one objective is required");
+      }
+    }
+
+    if (!createProtocol && !createEngagement && !createDataSheets && !goalOption) {
+      errors.push("Please select at least one output to generate");
+    }
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return false;
+    }
+
+    return true;
   };
 
   const isBasicFormValid = formData.age && formData.disorderArea && formData.description.trim();
@@ -54,26 +125,57 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!canSubmit) return;
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors below before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    const patientData: PatientData = {
-      age: parseInt(formData.age),
-      disorderArea: formData.disorderArea,
-      secondaryDisorderArea: formData.secondaryDisorderArea === 'none' ? undefined : formData.secondaryDisorderArea || undefined,
-      description: formData.description.trim(),
-      patientInitials: formData.patientInitials || undefined,
-    };
+    try {
+      const patientData: PatientData = {
+        age: parseInt(formData.age),
+        disorderArea: formData.disorderArea,
+        secondaryDisorderArea: formData.secondaryDisorderArea === 'none' ? undefined : formData.secondaryDisorderArea || undefined,
+        description: formData.description.trim(),
+        patientInitials: formData.patientInitials || undefined,
+      };
 
-    if (goalOption === "manual" && longTermGoal.trim() && objectives.some(obj => obj.trim())) {
-      onManualSubmit({
-        ...patientData,
-        manualGoals: {
+      // Validate using our secure validation utility
+      const validatedPatientData = validatePatientData(patientData);
+
+      if (goalOption === "manual" && longTermGoal.trim() && objectives.some(obj => obj.trim())) {
+        const manualGoals = {
           longTermGoal: longTermGoal.trim(),
           objectives: objectives.filter(obj => obj.trim()),
-        },
-      });
-    } else {
-      onSubmit(patientData);
+        };
+
+        // Validate manual goals
+        const validatedManualGoals = validateManualGoals(manualGoals);
+
+        onManualSubmit({
+          ...validatedPatientData,
+          manualGoals: validatedManualGoals,
+        });
+      } else {
+        onSubmit(validatedPatientData);
+      }
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        toast({
+          title: "Invalid Input",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -86,6 +188,20 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {validationErrors.length > 0 && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-4 h-4 text-red-600" />
+              <h4 className="text-sm font-medium text-red-800">Please fix the following errors:</h4>
+            </div>
+            <ul className="text-sm text-red-700 list-disc list-inside space-y-1">
+              {validationErrors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Top row - Basic info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -96,9 +212,16 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
                 type="text"
                 placeholder="e.g. J.S."
                 value={formData.patientInitials}
-                onChange={(e) => setFormData(prev => ({ ...prev, patientInitials: e.target.value }))}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length <= 10) {
+                    setFormData(prev => ({ ...prev, patientInitials: value }));
+                  }
+                }}
                 className="text-lg h-12"
+                maxLength={10}
               />
+              <p className="text-xs text-gray-500">Maximum 10 characters, letters and periods only</p>
             </div>
 
             <div className="space-y-2">
@@ -142,12 +265,18 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
               id="description"
               placeholder="Describe the patient's symptoms, strengths, and specific needs. Include relevant background information, current abilities, and areas of concern."
               value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.length <= 2000) {
+                  setFormData(prev => ({ ...prev, description: value }));
+                }
+              }}
               className="min-h-32 text-base resize-none"
+              maxLength={2000}
               required
             />
             <p className="text-sm text-slate-500">
-              Provide detailed information to help generate more accurate therapy plans
+              Provide detailed information to help generate more accurate therapy plans ({formData.description.length}/2000 characters)
             </p>
           </div>
 
@@ -179,9 +308,16 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
                         id="longTermGoal"
                         placeholder="Enter the long-term goal for this patient..."
                         value={longTermGoal}
-                        onChange={(e) => setLongTermGoal(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value.length <= 1000) {
+                            setLongTermGoal(value);
+                          }
+                        }}
                         className="min-h-20 text-sm"
+                        maxLength={1000}
                       />
+                      <p className="text-xs text-gray-500">{longTermGoal.length}/1000 characters</p>
                     </div>
 
                     <div className="space-y-3">
@@ -193,6 +329,7 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
                           size="sm"
                           onClick={addObjective}
                           className="text-xs"
+                          disabled={objectives.length >= 10}
                         >
                           Add Objective
                         </Button>
@@ -206,6 +343,7 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
                               value={objective}
                               onChange={(e) => updateObjective(index, e.target.value)}
                               className="text-sm"
+                              maxLength={500}
                             />
                           </div>
                           {objectives.length > 1 && (

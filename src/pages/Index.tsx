@@ -6,8 +6,8 @@ import { PatientInput } from "@/components/PatientInput";
 import { TherapyPlan } from "@/components/TherapyPlan";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ExamplePlans } from "@/components/ExamplePlans";
-import { generateTherapyPlan, generateTreatmentProtocol } from "@/services/aiService";
-import { saveTherapyPlan } from "@/services/storageService";
+import { generateTherapyPlan, generateTreatmentProtocol, ApiKeyError, RateLimitError, ValidationError } from "@/services/secureAiService";
+import { saveTherapyPlan } from "@/services/secureStorageService";
 import { useToast } from "@/hooks/use-toast";
 import type { PatientData, TherapyPlanData } from "@/types";
 
@@ -32,9 +32,20 @@ const Index = () => {
       });
     } catch (error) {
       console.error('Error generating therapy plan:', error);
+      
+      let errorMessage = "Failed to generate therapy plan. Please try again.";
+      
+      if (error instanceof ApiKeyError) {
+        errorMessage = "API configuration error. Please check your setup.";
+      } else if (error instanceof RateLimitError) {
+        errorMessage = "Too many requests. Please wait a moment before trying again.";
+      } else if (error instanceof ValidationError) {
+        errorMessage = "Invalid input data. Please check your form entries.";
+      }
+      
       toast({
         title: "Generation Failed",
-        description: "Failed to generate therapy plan. Please check your API key and try again.",
+        description: errorMessage,
         variant: "destructive",
       });
       setCurrentStep('input');
@@ -56,9 +67,20 @@ const Index = () => {
       });
     } catch (error) {
       console.error('Error generating treatment protocol:', error);
+      
+      let errorMessage = "Failed to generate treatment protocol. Please try again.";
+      
+      if (error instanceof ApiKeyError) {
+        errorMessage = "API configuration error. Please check your setup.";
+      } else if (error instanceof RateLimitError) {
+        errorMessage = "Too many requests. Please wait a moment before trying again.";
+      } else if (error instanceof ValidationError) {
+        errorMessage = "Invalid input data. Please check your form entries.";
+      }
+      
       toast({
         title: "Generation Failed",
-        description: "Failed to generate treatment protocol. Please check your API key and try again.",
+        description: errorMessage,
         variant: "destructive",
       });
       setCurrentStep('input');
