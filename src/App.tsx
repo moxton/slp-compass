@@ -5,14 +5,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { AuthGuard } from "@/components/auth/AuthGuard";
 import Index from "./pages/Index";
-import ProtectedIndex from "./pages/ProtectedIndex";
 import History from "./pages/History";
 import NotFound from "./pages/NotFound";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import { AuthPage } from "./components/auth/AuthPage";
+import PatientPage from "./pages/PatientPage";
 
 const queryClient = new QueryClient();
 
@@ -24,7 +23,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<AuthGuard />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/patient" element={<PatientPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/history" element={<History />} />
             <Route path="/privacy" element={<Privacy />} />

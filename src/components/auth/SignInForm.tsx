@@ -59,7 +59,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onSwitchToSignUp, onForg
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
+        <CardTitle className="text-2xl font-bold text-center text-blue-600">Sign In</CardTitle>
         <CardDescription className="text-center">
           Welcome back to SLP Compass
         </CardDescription>
@@ -105,7 +105,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onSwitchToSignUp, onForg
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
                 ) : (
-                  <Eye className="h-4 w-4" />
+                  <Eye className="w-4 h-4" />
                 )}
               </Button>
             </div>
@@ -116,7 +116,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onSwitchToSignUp, onForg
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             disabled={isLoading}
           >
             {isLoading ? (

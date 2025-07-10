@@ -1,139 +1,131 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
-import { PatientInput } from "@/components/PatientInput";
-import { TherapyPlan } from "@/components/TherapyPlan";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { ExamplePlans } from "@/components/ExamplePlans";
-import { generateTherapyPlan, generateTreatmentProtocol, ApiKeyError, RateLimitError, ValidationError } from "@/services/secureAiService";
-import { saveTherapyPlan } from "@/services/secureStorageService";
-import { useToast } from "@/hooks/use-toast";
-import type { PatientData, TherapyPlanData } from "@/types";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Sparkles, Target, Clock, Shield, ArrowRight } from 'lucide-react';
 
 const CompassLogo = () => (
   <img src="/compass.svg" alt="Compass Logo" className="w-10 h-10 inline-block align-middle mr-2" />
 );
 
 const Index = () => {
-  const [currentStep, setCurrentStep] = useState<'input' | 'loading' | 'output'>('input');
-  const [therapyPlan, setTherapyPlan] = useState<TherapyPlanData | null>(null);
-  const { toast } = useToast();
-  const navigate = useNavigate();
-
-  const handleGeneratePlan = async (patientData: PatientData) => {
-    setCurrentStep('loading');
-    
-    try {
-      const plan = await generateTherapyPlan(patientData);
-      setTherapyPlan(plan);
-      saveTherapyPlan(plan);
-      setCurrentStep('output');
-      
-      toast({
-        title: "Therapy Plan Generated",
-        description: "Your individualized therapy plan has been created successfully.",
-      });
-    } catch (error) {
-      console.error('Error generating therapy plan:', error);
-      
-      let errorMessage = "Failed to generate therapy plan. Please try again.";
-      
-      if (error instanceof ApiKeyError) {
-        errorMessage = "API configuration error. Please check your setup.";
-      } else if (error instanceof RateLimitError) {
-        errorMessage = "Too many requests. Please wait a moment before trying again.";
-      } else if (error instanceof ValidationError) {
-        errorMessage = "Invalid input data. Please check your form entries.";
-      }
-      
-      toast({
-        title: "Generation Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setCurrentStep('input');
-    }
-  };
-
-  const handleManualGoalSubmit = async (data: PatientData & { manualGoals: { longTermGoal: string; objectives: string[] } }) => {
-    setCurrentStep('loading');
-    
-    try {
-      const plan = await generateTreatmentProtocol(data);
-      setTherapyPlan(plan);
-      saveTherapyPlan(plan);
-      setCurrentStep('output');
-      
-      toast({
-        title: "Treatment Protocol Generated",
-        description: "Your treatment protocol and engagement ideas have been created successfully.",
-      });
-    } catch (error) {
-      console.error('Error generating treatment protocol:', error);
-      
-      let errorMessage = "Failed to generate treatment protocol. Please try again.";
-      
-      if (error instanceof ApiKeyError) {
-        errorMessage = "API configuration error. Please check your setup.";
-      } else if (error instanceof RateLimitError) {
-        errorMessage = "Too many requests. Please wait a moment before trying again.";
-      } else if (error instanceof ValidationError) {
-        errorMessage = "Invalid input data. Please check your form entries.";
-      }
-      
-      toast({
-        title: "Generation Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setCurrentStep('input');
-    }
-  };
-
-  const handleNewPlan = () => {
-    setCurrentStep('input');
-    setTherapyPlan(null);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <Navigation onHistoryClick={() => navigate('/history')} />
-      
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-blue-600 mb-4 flex items-center justify-center gap-3">
-              <CompassLogo />
-              <span>SLP Compass</span>
-            </h1>
-            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Effortless, evidence-based therapy planning for speech-language pathologists
-            </p>
-          </div>
-
-          {currentStep === 'input' && (
-            <div className="space-y-12">
-              <div className="text-blue-600 italic text-lg font-medium text-center px-4 py-2 rounded-md bg-white border border-blue-100 shadow-sm max-w-2xl mx-auto mb-8">
-                SLP Compass saves you hours every month by writing evidence-based goals, treatment plans, and data sheets the right way, so you can spend your time where it matters - actually helping kids.
-              </div>
-              <PatientInput 
-                onSubmit={handleGeneratePlan}
-                onManualSubmit={handleManualGoalSubmit}
-              />
+      <Navigation />
+      <main className="container mx-auto px-4 py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-bold text-blue-600 mb-6 flex items-center justify-center gap-3">
+            <CompassLogo />
+            <span>SLP Compass</span>
+          </h1>
+          <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-8">
+            Effortless, evidence-based therapy planning for speech-language pathologists
+          </p>
+          <div className="flex justify-center mb-8">
+            <div className="bg-white border border-blue-100 shadow-sm rounded-md px-6 py-4 text-blue-600 italic text-lg font-medium max-w-xl w-full mx-auto">
+              SLP Compass saves you hours every month by writing evidence-based goals, treatment plans, and data sheets the right way, so you can spend your time where it matters - actually helping kids.
             </div>
-          )}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              onClick={() => window.location.href = '/patient'}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg rounded-md font-semibold transition-colors"
+            >
+              Get Started Free
+              <ArrowRight className="ml-2 h-5 w-5 inline-block" />
+            </button>
+            <button 
+              onClick={() => window.location.href = '/auth'}
+              className="border border-blue-600 text-blue-600 px-8 py-3 text-lg rounded-md font-semibold transition-colors hover:bg-blue-50"
+            >
+              Sign In
+            </button>
+          </div>
+        </div>
 
-          {currentStep === 'loading' && (
-            <LoadingSpinner />
-          )}
+        {/* Features Section */}
+        <div className="flex flex-wrap justify-center gap-8 mb-16">
+          <Card className="text-center max-w-xs w-full">
+            <CardHeader>
+              <div className="mx-auto w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <Sparkles className="w-6 h-6 text-blue-600" />
+              </div>
+              <CardTitle>AI-Powered Planning</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Generate evidence-based therapy goals, objectives, and treatment protocols in minutes, not hours.
+              </CardDescription>
+            </CardContent>
+          </Card>
 
-          {currentStep === 'output' && therapyPlan && (
-            <TherapyPlan 
-              plan={therapyPlan} 
-              onNewPlan={handleNewPlan}
-            />
-          )}
+          <Card className="text-center max-w-xs w-full">
+            <CardHeader>
+              <div className="mx-auto w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <Target className="w-6 h-6 text-blue-600" />
+              </div>
+              <CardTitle>SMART Goals</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Create specific, measurable, achievable, relevant, and time-bound objectives that drive progress.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center max-w-xs w-full">
+            <CardHeader>
+              <div className="mx-auto w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <Clock className="w-6 h-6 text-blue-600" />
+              </div>
+              <CardTitle>Save Time</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Focus on what matters most - your patients. Let SLP Compass handle the documentation.
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Security Section */}
+        <div className="flex justify-center mb-16">
+          <Card className="max-w-xl w-full mx-auto">
+            <CardHeader className="text-center">
+              <div className="mx-auto w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                <Shield className="w-6 h-6 text-green-600" />
+              </div>
+              <CardTitle>Built for Privacy & Security</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription className="text-base">
+                SLP Compass is designed with confidentiality in mind. We never store protected health information (PHI) 
+                or personally identifiable information (PII). Use initials or codes only, and maintain full compliance 
+                with HIPAA and other privacy regulations.
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* CTA Section */}
+        <div className="text-center">
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle className="text-2xl">Ready to Transform Your Therapy Planning?</CardTitle>
+              <CardDescription>
+                Join hundreds of speech-language pathologists who are already saving time and improving outcomes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <button 
+                onClick={() => window.location.href = '/patient'}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg w-full sm:w-auto rounded-md font-semibold transition-colors"
+              >
+                Start Creating Plans Today
+                <ArrowRight className="ml-2 h-5 w-5 inline-block" />
+              </button>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>

@@ -5,10 +5,6 @@ import { History } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserMenu } from "@/components/auth/UserMenu";
 
-interface NavigationProps {
-  onHistoryClick?: () => void;
-}
-
 const CompassLogo = () => (
   <img src="/compass.svg" alt="Compass Logo" className="w-8 h-8" />
 );
