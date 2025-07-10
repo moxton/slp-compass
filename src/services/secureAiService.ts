@@ -1,7 +1,10 @@
 
 import type { PatientData, TherapyPlanData } from "@/types";
 import { validatePatientData, validateManualGoals, apiRateLimiter } from "@/utils/validation";
+<<<<<<< HEAD
 import { supabase } from "@/integrations/supabase/client";
+=======
+>>>>>>> 794405e8a914d62f126e1039bf32d31ac0ace405
 
 // Error classes for better error handling
 export class ApiKeyError extends Error {
@@ -25,6 +28,7 @@ export class ValidationError extends Error {
   }
 }
 
+<<<<<<< HEAD
 // Transform Edge Function response to match TherapyPlanData format
 const transformEdgeFunctionResponse = (aiOutput: any, patientData: PatientData): TherapyPlanData => {
   // Handle new structure with longTermGoals array
@@ -104,6 +108,9 @@ const transformEdgeFunctionResponse = (aiOutput: any, patientData: PatientData):
 };
 
 // Secure therapy plan generation using Supabase Edge Functions
+=======
+// Secure therapy plan generation (removes client-side API key handling)
+>>>>>>> 794405e8a914d62f126e1039bf32d31ac0ace405
 export const generateTherapyPlan = async (patientData: PatientData): Promise<TherapyPlanData> => {
   // Validate and sanitize input data
   try {
@@ -118,6 +125,7 @@ export const generateTherapyPlan = async (patientData: PatientData): Promise<The
     throw new RateLimitError('Too many requests. Please wait before trying again.');
   }
 
+<<<<<<< HEAD
   try {
     // Call Supabase Edge Function
     const { data, error } = await supabase.functions.invoke('generate-therapy-plan', {
@@ -146,6 +154,13 @@ export const generateTherapyPlan = async (patientData: PatientData): Promise<The
     
     throw error;
   }
+=======
+  // TODO: Replace with Supabase Edge Function call
+  // For now, return a secure mock response to prevent API key exposure
+  console.warn('SECURITY NOTICE: AI service temporarily disabled for security. Please integrate Supabase.');
+  
+  return createMockTherapyPlan(patientData);
+>>>>>>> 794405e8a914d62f126e1039bf32d31ac0ace405
 };
 
 export const generateTreatmentProtocol = async (
@@ -165,6 +180,7 @@ export const generateTreatmentProtocol = async (
     throw new RateLimitError('Too many requests. Please wait before trying again.');
   }
 
+<<<<<<< HEAD
   try {
     // Call Supabase Edge Function for treatment protocol
     const { data: responseData, error } = await supabase.functions.invoke('generate-treatment-protocol', {
@@ -199,6 +215,15 @@ export const generateTreatmentProtocol = async (
 };
 
 // Secure mock response generator (fallback when Edge Functions are not available)
+=======
+  // TODO: Replace with Supabase Edge Function call
+  console.warn('SECURITY NOTICE: AI service temporarily disabled for security. Please integrate Supabase.');
+  
+  return createMockTreatmentProtocol(data);
+};
+
+// Secure mock response generator (temporary until Supabase integration)
+>>>>>>> 794405e8a914d62f126e1039bf32d31ac0ace405
 const createMockTherapyPlan = (patientData: PatientData): TherapyPlanData => {
   const disorderAreaMap: Record<string, string> = {
     'articulation-phonology': 'articulation and phonological disorders',

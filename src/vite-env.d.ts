@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+<<<<<<< HEAD
 
 interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL: string
@@ -11,3 +12,5 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+=======
+>>>>>>> 794405e8a914d62f126e1039bf32d31ac0ace405

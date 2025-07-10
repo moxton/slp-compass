@@ -11,10 +11,13 @@ import { saveTherapyPlan } from "@/services/secureStorageService";
 import { useToast } from "@/hooks/use-toast";
 import type { PatientData, TherapyPlanData } from "@/types";
 
+<<<<<<< HEAD
 const CompassLogo = () => (
   <img src="/compass.svg" alt="Compass Logo" className="w-10 h-10 inline-block align-middle mr-2" />
 );
 
+=======
+>>>>>>> 794405e8a914d62f126e1039bf32d31ac0ace405
 const Index = () => {
   const [currentStep, setCurrentStep] = useState<'input' | 'loading' | 'output'>('input');
   const [therapyPlan, setTherapyPlan] = useState<TherapyPlanData | null>(null);
@@ -103,9 +106,14 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
+<<<<<<< HEAD
             <h1 className="text-4xl font-bold text-blue-600 mb-4 flex items-center justify-center gap-3">
               <CompassLogo />
               <span>SLP Compass</span>
+=======
+            <h1 className="text-4xl font-bold text-blue-600 mb-4">
+              SLP Compass
+>>>>>>> 794405e8a914d62f126e1039bf32d31ac0ace405
             </h1>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
               Effortless, evidence-based therapy planning for speech-language pathologists
@@ -118,9 +126,13 @@ const Index = () => {
                 onSubmit={handleGeneratePlan}
                 onManualSubmit={handleManualGoalSubmit}
               />
+<<<<<<< HEAD
               <div className="text-blue-600 italic text-lg font-medium text-center px-4 py-2 rounded-md bg-white border border-blue-100 shadow-sm max-w-2xl mx-auto">
                 SLP Compass saves you hours every month by writing evidence-based goals, treatment plans, and data sheets the right way, so you can spend your time where it matters - actually helping kids.
               </div>
+=======
+              <ExamplePlans />
+>>>>>>> 794405e8a914d62f126e1039bf32d31ac0ace405
             </div>
           )}
 
