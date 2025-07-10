@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { PatientInput } from "@/components/PatientInput";
@@ -14,15 +14,22 @@ const CompassLogo = () => (
   <img src="/compass.svg" alt="Compass Logo" className="w-10 h-10 inline-block align-middle mr-2" />
 );
 
+const BYPASS_KEY = 'bypass_signin';
+
 const PatientPage = () => {
   const [currentStep, setCurrentStep] = useState<'input' | 'loading' | 'output'>('input');
   const [therapyPlan, setTherapyPlan] = useState<TherapyPlanData | null>(null);
+  const [bypass, setBypass] = useState(() => localStorage.getItem(BYPASS_KEY) === 'true');
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  useEffect(() => {
+    localStorage.setItem(BYPASS_KEY, bypass ? 'true' : 'false');
+  }, [bypass]);
+
   const handleGeneratePlan = async (patientData: PatientData) => {
-    if (!user) {
+    if (!user && !bypass) {
       toast({
         title: "Sign In Required",
         description: "Please sign in to generate therapy plans.",
@@ -60,7 +67,7 @@ const PatientPage = () => {
   };
 
   const handleManualGoalSubmit = async (data: PatientData & { manualGoals: { longTermGoal: string; objectives: string[] } }) => {
-    if (!user) {
+    if (!user && !bypass) {
       toast({
         title: "Sign In Required",
         description: "Please sign in to generate treatment protocols.",
@@ -106,7 +113,18 @@ const PatientPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <Navigation />
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto relative">
+          {/* Bypass Toggle */}
+          <div className="absolute right-0 top-0 z-10 flex items-center gap-2">
+            <label htmlFor="bypass-toggle" className="text-xs font-medium text-blue-600 cursor-pointer select-none">Bypass Sign In</label>
+            <input
+              id="bypass-toggle"
+              type="checkbox"
+              checked={bypass}
+              onChange={e => setBypass(e.target.checked)}
+              className="accent-blue-600 w-4 h-4"
+            />
+          </div>
           {/* Hero Section */}
           <div className="text-center mb-10">
             <h1 className="text-4xl font-bold text-blue-600 mb-4 flex items-center justify-center gap-3">
