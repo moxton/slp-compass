@@ -14,10 +14,10 @@ const Index = () => {
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-blue-600 mb-6 flex items-center justify-center gap-3">
-            <CompassLogo />
-            <span>SLP Compass</span>
-          </h1>
+          <div className="flex flex-col items-center justify-center mb-2">
+            <img src="/compass.svg" alt="Compass Logo" className="w-16 h-16 mb-2" />
+            <h1 className="text-5xl font-bold text-blue-600">SLP Compass</h1>
+          </div>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-8">
             Effortless, evidence-based therapy planning for speech-language pathologists
           </p>

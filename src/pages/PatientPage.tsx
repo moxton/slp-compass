@@ -127,10 +127,10 @@ const PatientPage = () => {
           </div>
           {/* Hero Section */}
           <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold text-blue-600 mb-4 flex items-center justify-center gap-3">
-              <CompassLogo />
-              <span>SLP Compass</span>
-            </h1>
+            <div className="flex flex-col items-center justify-center mb-2">
+              <img src="/compass.svg" alt="Compass Logo" className="w-14 h-14 mb-2" />
+              <h1 className="text-4xl font-bold text-blue-600">SLP Compass</h1>
+            </div>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               Effortless, evidence-based therapy planning for speech-language pathologists
             </p>
