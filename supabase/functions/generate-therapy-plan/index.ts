@@ -104,10 +104,11 @@ Please provide your response as a JSON object with the following structure:
     if (!openaiResponse.ok) throw new Error(`OpenAI error: ${openaiResponse.statusText}`);
     const openaiData = await openaiResponse.json();
     const aiContent = openaiData.choices[0]?.message?.content;
-
+    // Log the raw AI content for debugging
+    console.log("AI Content:", aiContent);
     // Parse AI response (extract JSON)
     const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON found in AI response");
+    if (!jsonMatch) throw new Error("No JSON found in AI response: " + aiContent);
     const aiOutput = JSON.parse(jsonMatch[0]);
 
     // Save to Supabase
