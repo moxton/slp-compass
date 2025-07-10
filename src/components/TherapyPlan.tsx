@@ -68,7 +68,7 @@ export const TherapyPlan = ({ plan, onNewPlan }: TherapyPlanProps) => {
             {editablePlan.patientData.secondaryDisorderArea && ` • Secondary: ${editablePlan.patientData.secondaryDisorderArea}`}
           </p>
         </div>
-        <Button onClick={onNewPlan} className="flex items-center gap-2">
+        <Button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNewPlan(); }} className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2">
           <Plus className="w-4 h-4" />
           New Plan
         </Button>
@@ -250,6 +250,14 @@ export const TherapyPlan = ({ plan, onNewPlan }: TherapyPlanProps) => {
         </CardContent>
       </Card>
       )}
+
+      {/* Start New Button at Bottom */}
+      <div className="flex justify-center mt-8">
+        <Button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNewPlan(); }} className="bg-blue-600 text-white hover:bg-blue-700 text-lg px-8 py-4 rounded-md flex items-center gap-2">
+          <Plus className="w-5 h-5" />
+          New Plan
+        </Button>
+      </div>
     </div>
   );
 };

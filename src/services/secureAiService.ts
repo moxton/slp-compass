@@ -113,7 +113,8 @@ export const generateTherapyPlan = async (patientData: PatientData): Promise<The
   }
 
   // Check rate limiting
-  const clientId = 'anonymous'; // In future, use authenticated user ID
+  const { data: { user } } = await supabase.auth.getUser();
+  const clientId = user?.id || 'anonymous';
   if (!apiRateLimiter.isAllowed(clientId)) {
     throw new RateLimitError('Too many requests. Please wait before trying again.');
   }
@@ -160,7 +161,8 @@ export const generateTreatmentProtocol = async (
   }
 
   // Check rate limiting
-  const clientId = 'anonymous';
+  const { data: { user } } = await supabase.auth.getUser();
+  const clientId = user?.id || 'anonymous';
   if (!apiRateLimiter.isAllowed(clientId)) {
     throw new RateLimitError('Too many requests. Please wait before trying again.');
   }

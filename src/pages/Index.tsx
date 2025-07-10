@@ -114,13 +114,13 @@ const Index = () => {
 
           {currentStep === 'input' && (
             <div className="space-y-12">
+              <div className="text-blue-600 italic text-lg font-medium text-center px-4 py-2 rounded-md bg-white border border-blue-100 shadow-sm max-w-2xl mx-auto mb-8">
+                SLP Compass saves you hours every month by writing evidence-based goals, treatment plans, and data sheets the right way, so you can spend your time where it matters - actually helping kids.
+              </div>
               <PatientInput 
                 onSubmit={handleGeneratePlan}
                 onManualSubmit={handleManualGoalSubmit}
               />
-              <div className="text-blue-600 italic text-lg font-medium text-center px-4 py-2 rounded-md bg-white border border-blue-100 shadow-sm max-w-2xl mx-auto">
-                SLP Compass saves you hours every month by writing evidence-based goals, treatment plans, and data sheets the right way, so you can spend your time where it matters - actually helping kids.
-              </div>
             </div>
           )}
 

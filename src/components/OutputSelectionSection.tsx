@@ -91,14 +91,16 @@ export const OutputSelectionSection = ({
           </Label>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 opacity-50 cursor-not-allowed">
           <Checkbox
             id="create-data-sheets"
             checked={createDataSheets}
-            onCheckedChange={(checked) => setCreateDataSheets(!!checked)}
+            onCheckedChange={() => {}}
+            disabled
           />
           <Label htmlFor="create-data-sheets" className="text-sm font-medium">
             Create spreadsheets that correspond with objectives for data collection
+            <span className="text-red-600 font-semibold ml-2">(Coming Soon)</span>
           </Label>
         </div>
       </div>

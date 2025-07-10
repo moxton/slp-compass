@@ -26,7 +26,9 @@ export const PatientBasicInfo = ({ formData, setFormData }: PatientBasicInfoProp
             placeholder="e.g. J.S."
             value={formData.patientInitials}
             onChange={(e) => {
-              const value = e.target.value;
+              let value = e.target.value;
+              // Only allow letters and periods
+              value = value.replace(/[^a-zA-Z.]/g, "");
               if (value.length <= 10) {
                 setFormData(prev => ({ ...prev, patientInitials: value }));
               }
@@ -34,7 +36,7 @@ export const PatientBasicInfo = ({ formData, setFormData }: PatientBasicInfoProp
             className="text-lg h-12"
             maxLength={10}
           />
-          <p className="text-xs text-gray-500">Maximum 10 characters, letters and periods only</p>
+          <p className="text-xs text-gray-500">Use initials or pseudonyms only. Do not enter identifying info. Maximum 10 characters, letters and periods only.</p>
         </div>
 
         <div className="space-y-2">
