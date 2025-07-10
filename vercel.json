@@ -28,7 +28,7 @@
     }
   ],
   "env": {
-    "VITE_SUPABASE_URL": "@vite_supabase_url",
-    "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key"
+    "VITE_SUPABASE_URL": "https://uahaqwokxmcdkxemmtiq.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "your_supabase_anon_key_here"
   }
 } 
