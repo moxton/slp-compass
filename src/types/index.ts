@@ -2,8 +2,12 @@ export interface PatientData {
   age: number;
   disorderArea: string;
   secondaryDisorderArea?: string;
-  description: string;
   patientInitials?: string;
+  deficits?: string;
+  specificErrors?: string;
+  strengths?: string;
+  hobbies?: string;
+  additionalDetails?: string;
 }
 
 export interface Objective {

@@ -41,32 +41,15 @@ export const OutputSelectionSection = ({
     <div className="border-t pt-8">
       <h3 className="text-lg font-semibold mb-6">Select Outputs to Generate</h3>
       <div className="space-y-6">
-        <div className="space-y-4">
-          <RadioGroup value={goalOption} onValueChange={setGoalOption}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="create" id="create-goals" />
-              <Label htmlFor="create-goals" className="text-sm font-medium">
-                Create long-term goals and SMART objectives
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="manual" id="manual-goals" />
-              <Label htmlFor="manual-goals" className="text-sm font-medium">
-                I want to enter my own goals and objectives
-              </Label>
-            </div>
-          </RadioGroup>
-
-          {goalOption === "manual" && (
-            <ManualGoalsSection
-              longTermGoal={longTermGoal}
-              setLongTermGoal={setLongTermGoal}
-              objectives={objectives}
-              updateObjective={updateObjective}
-              addObjective={addObjective}
-              removeObjective={removeObjective}
-            />
-          )}
+        <div className="flex items-center space-x-3">
+          <Checkbox
+            id="create-goals"
+            checked={goalOption === 'create'}
+            onCheckedChange={(checked) => setGoalOption(checked ? 'create' : '')}
+          />
+          <Label htmlFor="create-goals" className="text-sm font-medium">
+            Create long-term goals and SMART objectives
+          </Label>
         </div>
 
         <div className="flex items-center space-x-3">

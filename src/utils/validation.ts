@@ -12,7 +12,7 @@ export class ValidationError extends Error {
 export const patientDataSchema = z.object({
   patientInitials: z.string()
     .max(10, 'Patient initials must be 10 characters or less')
-    .regex(/^[A-Za-z.\s]*$/, 'Patient initials can only contain letters, periods, and spaces')
+    .regex(/^[A-Za-z.]*$/, 'Patient initials can only contain letters and periods')
     .optional(),
   age: z.number()
     .min(2, 'Age must be at least 2')
@@ -23,10 +23,11 @@ export const patientDataSchema = z.object({
   secondaryDisorderArea: z.string()
     .max(50, 'Secondary disorder area name is too long')
     .optional(),
-  description: z.string()
-    .min(10, 'Description must be at least 10 characters')
-    .max(2000, 'Description must be less than 2000 characters')
-    .refine(val => val.trim().length > 0, 'Description cannot be empty'),
+  deficits: z.string().max(1000, 'Deficits must be less than 1000 characters').optional(),
+  specificErrors: z.string().max(1000, 'Specific errors must be less than 1000 characters').optional(),
+  strengths: z.string().max(1000, 'Strengths must be less than 1000 characters').optional(),
+  hobbies: z.string().max(1000, 'Hobbies must be less than 1000 characters').optional(),
+  additionalDetails: z.string().max(1000, 'Additional details must be less than 1000 characters').optional(),
 });
 
 // Schema for manual goals validation
@@ -59,7 +60,11 @@ export const validatePatientData = (data: any) => {
     patientInitials: data.patientInitials ? sanitizeHtml(data.patientInitials) : undefined,
     disorderArea: sanitizeHtml(data.disorderArea),
     secondaryDisorderArea: data.secondaryDisorderArea ? sanitizeHtml(data.secondaryDisorderArea) : undefined,
-    description: sanitizeHtml(data.description),
+    deficits: sanitizeHtml(data.deficits),
+    specificErrors: sanitizeHtml(data.specificErrors),
+    strengths: sanitizeHtml(data.strengths),
+    hobbies: sanitizeHtml(data.hobbies),
+    additionalDetails: sanitizeHtml(data.additionalDetails),
   };
 
   try {

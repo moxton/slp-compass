@@ -18,20 +18,20 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
             <Route path="/patient" element={<PatientPage />} />
             <Route path="/auth" element={<AuthPage />} />
-            <Route path="/history" element={<History />} />
+          <Route path="/history" element={<History />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
         <footer className="w-full bg-slate-50 border-t mt-12 py-6 flex justify-center">
           <div className="max-w-2xl w-full px-4">
             <div className="rounded-lg border bg-white p-4 shadow-sm text-xs text-slate-600 text-left">
@@ -44,7 +44,7 @@ const App = () => (
             </div>
           </div>
         </footer>
-      </TooltipProvider>
+    </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

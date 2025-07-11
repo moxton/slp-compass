@@ -40,8 +40,7 @@ export const TherapyPlanCard = ({ plan }: TherapyPlanCardProps) => {
   const getFullPlanText = () => {
     return `THERAPY PLAN\n\n` +
            `Patient: Age ${plan.patientData.age}\n` +
-           `Disorder Area: ${formatDisorderArea(plan.patientData.disorderArea)}\n` +
-           `Description: ${plan.patientData.description}\n\n` +
+           `Disorder Area: ${formatDisorderArea(plan.patientData.disorderArea)}\n\n` +
            `LONG-TERM GOAL:\n${plan.longTermGoal}\n\n` +
            `SMART OBJECTIVES:\n${plan.objectives.map((obj, i) => `${i + 1}. ${obj.text}`).join('\n')}\n\n` +
            `TREATMENT PROTOCOL:\n` +
@@ -75,12 +74,6 @@ export const TherapyPlanCard = ({ plan }: TherapyPlanCardProps) => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <p className="text-sm text-slate-600 mb-2">Patient Description:</p>
-          <p className="text-slate-700 text-sm bg-slate-50 p-3 rounded">
-            {plan.patientData.description}
-          </p>
-        </div>
         
         <div>
           <p className="text-sm text-slate-600 mb-2">Long-term Goal:</p>

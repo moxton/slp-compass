@@ -4,7 +4,6 @@ import { Sparkles } from "lucide-react";
 import { usePatientForm } from "@/hooks/usePatientForm";
 import { ValidationErrors } from "./ValidationErrors";
 import { PatientBasicInfo } from "./PatientBasicInfo";
-import { PatientDescription } from "./PatientDescription";
 import { OutputSelectionSection } from "./OutputSelectionSection";
 import type { PatientData } from "@/types";
 
@@ -43,6 +42,7 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
           <Sparkles className="w-5 h-5 text-blue-600" />
           Patient Information
         </CardTitle>
+        <p className="text-xs text-gray-500 mt-2">Use initials or pseudonyms only. Do not enter identifying info.</p>
       </CardHeader>
       <CardContent>
         <ValidationErrors errors={validationErrors} />
@@ -50,11 +50,6 @@ export const PatientInput = ({ onSubmit, onManualSubmit }: PatientInputProps) =>
         <form onSubmit={handleSubmit} className="space-y-8">
           <PatientBasicInfo formData={formData} setFormData={setFormData} />
           
-          <PatientDescription 
-            description={formData.description} 
-            setFormData={setFormData} 
-          />
-
           <OutputSelectionSection
             goalOption={goalOption}
             setGoalOption={setGoalOption}

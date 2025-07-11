@@ -15,7 +15,11 @@ export const usePatientForm = ({ onSubmit, onManualSubmit }: PatientInputProps) 
     age: "",
     disorderArea: "",
     secondaryDisorderArea: "",
-    description: "",
+    deficits: "",
+    specificErrors: "",
+    strengths: "",
+    hobbies: "",
+    additionalDetails: "",
   });
 
   const [goalOption, setGoalOption] = useState<string>("");
@@ -70,14 +74,6 @@ export const usePatientForm = ({ onSubmit, onManualSubmit }: PatientInputProps) 
       errors.push("Primary disorder area is required");
     }
 
-    if (!formData.description.trim() || formData.description.trim().length < 10) {
-      errors.push("Patient description must be at least 10 characters");
-    }
-
-    if (formData.description.length > 2000) {
-      errors.push("Patient description must be less than 2000 characters");
-    }
-
     if (!goalOption) {
       errors.push("Please select how you want to handle goals and objectives");
     }
@@ -119,7 +115,7 @@ export const usePatientForm = ({ onSubmit, onManualSubmit }: PatientInputProps) 
     }
 
     try {
-      if (!formData.age || !formData.disorderArea || !formData.description.trim()) {
+      if (!formData.age || !formData.disorderArea) {
         throw new ValidationError("Required fields are missing");
       }
 
@@ -127,7 +123,11 @@ export const usePatientForm = ({ onSubmit, onManualSubmit }: PatientInputProps) 
         age: parseInt(formData.age),
         disorderArea: formData.disorderArea,
         secondaryDisorderArea: formData.secondaryDisorderArea === 'none' ? undefined : formData.secondaryDisorderArea || undefined,
-        description: formData.description.trim(),
+        deficits: formData.deficits || undefined,
+        specificErrors: formData.specificErrors || undefined,
+        strengths: formData.strengths || undefined,
+        hobbies: formData.hobbies || undefined,
+        additionalDetails: formData.additionalDetails || undefined,
         patientInitials: formData.patientInitials || undefined,
       };
 
@@ -174,7 +174,7 @@ export const usePatientForm = ({ onSubmit, onManualSubmit }: PatientInputProps) 
     }
   };
 
-  const isBasicFormValid = formData.age && formData.disorderArea && formData.description.trim();
+  const isBasicFormValid = formData.age && formData.disorderArea;
   const hasSelections = goalOption || createProtocol || createEngagement || createDataSheets;
   const canSubmit = isBasicFormValid && hasSelections && 
     (goalOption !== "manual" || (longTermGoal.trim() && objectives.some(obj => obj.trim())));

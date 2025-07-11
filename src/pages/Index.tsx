@@ -19,8 +19,8 @@ const Index = () => {
             <h1 className="text-5xl font-bold text-blue-600">SLP Compass</h1>
           </div>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-8">
-            Effortless, evidence-based therapy planning for speech-language pathologists
-          </p>
+              Effortless, evidence-based therapy planning for speech-language pathologists
+            </p>
           <div className="flex justify-center mb-8">
             <div className="bg-white border border-blue-100 shadow-sm rounded-md px-6 py-4 text-blue-600 italic text-lg font-medium max-w-xl w-full mx-auto">
               SLP Compass saves you hours every month by writing evidence-based goals, treatment plans, and data sheets the right way, so you can spend your time where it matters - actually helping kids.
@@ -86,7 +86,7 @@ const Index = () => {
               </CardDescription>
             </CardContent>
           </Card>
-        </div>
+            </div>
 
         {/* Security Section */}
         <div className="flex justify-center mb-16">
