@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
- // goals provided in this function //
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -21,66 +21,94 @@ serve(async (req) => {
     }
     const {
       age,
-      primaryDisorderArea,
+      disorderArea,
       secondaryDisorderArea,
-      description,
+      deficits,
+      specificErrors,
+      strengths,
+      hobbies,
+      additionalDetails,
+      patientInitials,
       existingGoals // { longTermGoal: string, objectives: string[] } | undefined
     } = patientData;
 
     const skipGoals = !!(existingGoals && existingGoals.longTermGoal && existingGoals.objectives && existingGoals.objectives.length > 0);
 
     const prompt = `
-You are an expert pediatric speech-language pathologist (SLP) with at least 10 years of clinical experience, deep knowledge of evidence-based and developmentally appropriate practices, and a commitment to clear, detailed, actionable documentation suitable for IEPs and progress reports.
+You are an expert pediatric speech-language pathologist (SLP) with deep knowledge of evidence-based, developmentally appropriate best practices.
 
-PATIENT INFO:
+---
+
+INPUT:
+- Patient Initials: ${patientInitials || '[Initials or pseudonym only]'}
 - Age: ${age}
-- Primary Disorder Area: ${primaryDisorderArea}
-${secondaryDisorderArea ? `- Secondary Disorder Area: ${secondaryDisorderArea}` : ""}
-- Description: ${description}
+- Primary Disorder Area: ${disorderArea}
+- Secondary Disorder Area: ${secondaryDisorderArea || ''}
+- Deficits: ${deficits || ''}
+- Specific Errors: ${specificErrors || ''}
+- Strengths: ${strengths || ''}
+- Hobbies & Interests: ${hobbies || ''}
+- Additional Details (optional): ${additionalDetails || ''}
+
+---
 
 TASKS:
-Based on the information provided:
 
-1️⃣ Identify and consider each distinct deficit area described. For EACH deficit area:
-- Write one clear, individualized long-term goal - one that an experienced SLP would write. 
-- Write three short-term objectives as a numbered list.
-  - All objectives must be specific, measurable, achievable, relevant, and time-bound (each objective needs to meet all of those conditions). Example objective: “Student will follow 2-step directions with no more than 1 visual prompt with 80% accuracy across 3 consecutive sessions.”
+1️⃣ **Analyze the input and identify each distinct communication disorder or skill deficit.**
 
-3️⃣ For EACH deficit area and its corresponding long-term goal:
-- Create a separate, clearly labeled evidence-based treatment protocol.
-  - Name the protocol (Example protocols - Van Riper, Cycles, minimal pairs, maximal opposition, etc - those are just some examples to give you context for what I mean).
-  - For each protocol created, include: example targets, a detailed treatment hierarchy with clear criteria for advancement and generalization, explicit fading instructions (describe when and how to fade supports as accuracy improves), and at least one peer-reviewed source.
+2️⃣ **Generate a patient summary (2-3 sentences) describing how the goals will improve daily communication and how family/teachers can help generalize new skills.**
 
-4️⃣ Provide 3 creative, age-appropriate, specific engagement ideas. Each idea must describe the actual activity, not just a theme. Include materials or props if helpful. Be specific and detailed and creative. 
+3️⃣ **For each identified deficit, generate:**
+- A clear, individualized long-term goal that is detailed, specific, and relevant to daily communication
+- 3 short-term objectives as a numbered list, each demonstrating SMART qualities
+- An evidence-based treatment protocol including:
+  - Protocol name and description
+  - Duration and frequency
+  - Example targets
+  - Treatment hierarchy
+  - Cues and fading strategies
+  - Citation
+- 3 creative, age-appropriate engagement ideas
 
-5️⃣ Write a short, 2–3 sentence patient summary, including how family/teachers can support generalization.
+---
 
-✅ MUST-HAVES:
-- Never blend goals or protocols across deficits.
-- Use precise clinical terminology. Do not oversimplify.
-- Identify and address all relevant subcategories or error patterns for the disorder area. For example, for /r/ articulation, distinguish between postvocalic /r/ and /r/ blends if age-appropriate.
-- Do not oversimplify. Be detailed and specific and reference the user input as much as possible. 
-- Ensure all recommendations are consistent with current clinical standards for pediatric SLP.
+**CRITICAL: You must respond with valid JSON only. Use this exact structure:**
 
-Please provide your response as a JSON object with the following structure:
 {
-  "longTermGoals": [
+  "patientSummary": "2-3 sentence summary of how goals will improve communication and how family/teachers can help",
+  "deficitCards": [
     {
-      "deficitArea": "...",
-      "longTermGoal": "...",
-      "objectives": ["...", "...", "..."],
-      "treatmentProtocol": {
-        "name": "...",
-        "targets": ["..."],
-        "hierarchy": ["..."],
-        "fadingSupports": "...",
-        "references": ["..."]
-      }
+      "deficitName": "Name of the deficit (e.g., 'Velar Fronting', 'Cluster Reduction')",
+      "longTermGoal": "Detailed long-term goal statement",
+      "shortTermObjectives": [
+        "Objective 1 with SMART criteria",
+        "Objective 2 with SMART criteria", 
+        "Objective 3 with SMART criteria"
+      ],
+      "evidenceBasedProtocol": {
+        "name": "Protocol name (e.g., 'Cycles Phonological Remediation Approach')",
+        "duration": "Session duration (e.g., '30-minute sessions')",
+        "frequency": "Frequency (e.g., '2x/week for 6-8 weeks per cycle')",
+        "exampleTargets": "Specific examples (e.g., '/k/ and /g/ in isolation, syllables, words, short phrases')",
+        "hierarchy": "Treatment progression (e.g., 'Auditory bombardment → production practice in isolation → word → phrase → short sentence → generalization')",
+        "cuesAndFading": "Cue strategies and fading (e.g., 'Use tactile cues for tongue placement and visual models; fade to independent production as stimulability increases')",
+        "citation": "Citation (e.g., 'Hodson, B.W. (2010). Cycles Phonological Remediation Approach.')"
+      },
+      "engagementIdeas": [
+        "Engagement idea 1",
+        "Engagement idea 2",
+        "Engagement idea 3"
+      ]
     }
-  ],
-  "engagementIdeas": ["...", "...", "..."],
-  "summary": "..."
+  ]
 }
+
+**Guidelines:**
+- Use precise clinical language and current best practices
+- Each goal and objective must be fully SMART
+- If any input is missing, infer reasonable details based on age and disorder norms
+- Format for easy copy-paste into clinical documents
+- Respond with ONLY the JSON object, no additional text
 `;
 
     // Call OpenAI
@@ -88,28 +116,41 @@ Please provide your response as a JSON object with the following structure:
       method: "POST",
       headers: {
         "Authorization": `Bearer ${openaiApiKey}`,
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: "gpt-4",
         messages: [
-          { role: "system", content: "You are an expert SLP creating therapy plans." },
-          { role: "user", content: prompt }
+          {
+            role: "system",
+            content: "You are an expert SLP creating therapy plans. You must respond with valid JSON only."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
         ],
         temperature: 0.7,
-        max_tokens: 2000
-      }),
+        max_tokens: 3000
+      })
     });
-
     if (!openaiResponse.ok) throw new Error(`OpenAI error: ${openaiResponse.statusText}`);
     const openaiData = await openaiResponse.json();
     const aiContent = openaiData.choices[0]?.message?.content;
+    
     // Log the raw AI content for debugging
     console.log("AI Content:", aiContent);
-    // Parse AI response (extract JSON)
-    const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+    
+    // Parse AI response (extract JSON, robust to code blocks)
+    const cleaned = aiContent.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON found in AI response: " + aiContent);
     const aiOutput = JSON.parse(jsonMatch[0]);
+
+    // Validate the structure
+    if (!aiOutput.patientSummary || !aiOutput.deficitCards || !Array.isArray(aiOutput.deficitCards)) {
+      throw new Error("Invalid JSON structure: missing patientSummary or deficitCards");
+    }
 
     // Save to Supabase
     const supabase = createClient(

@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-// goals not provided in this function //
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -18,57 +18,71 @@ serve(async (req) => {
     const { patientData, manualGoals } = await req.json();
     const {
       age,
-      primaryDisorderArea,
+      disorderArea,
       secondaryDisorderArea,
-      description
+      deficits,
+      specificErrors,
+      strengths,
+      hobbies,
+      additionalDetails,
+      patientInitials
     } = patientData;
 
     const prompt = `
-You are an expert pediatric speech-language pathologist (SLP) with at least 10 years of clinical experience, deep knowledge of evidence-based and developmentally appropriate practices, and a commitment to clear, detailed, actionable documentation suitable for IEPs and progress reports.
+You are an expert pediatric speech-language pathologist (SLP) with deep knowledge of evidence-based, developmentally appropriate best practices.
 
-PATIENT INFO:
+---
+
+INPUT:
+- Patient Initials: ${patientInitials || '[Initials or pseudonym only]'}
 - Age: ${age}
-- Primary Disorder Area: ${primaryDisorderArea}
-${secondaryDisorderArea ? `- Secondary Disorder Area: ${secondaryDisorderArea}` : ""}
-- Description: ${description}
-- Existing Long-Term Goal: ${manualGoals.longTermGoal}
-- Existing Objectives: ${manualGoals.objectives.join("; ")}
+- Primary Disorder Area: ${disorderArea}
+- Secondary Disorder Area: ${secondaryDisorderArea || ''}
+- Deficits: ${deficits || ''}
+- Specific Errors: ${specificErrors || ''}
+- Strengths: ${strengths || ''}
+- Hobbies & Interests: ${hobbies || ''}
+- Additional Details (optional): ${additionalDetails || ''}
 
-TASKS:
-Based on the information and user-provided goals/objectives:
+---
 
-1️⃣ For EACH deficit area and its corresponding user-provided long-term goal:
-- Create a separate, clearly labeled evidence-based treatment protocol.
-  - Name the protocol (Example protocols - Van Riper, Cycles, minimal pairs, maximal opposition, etc - those are just some examples to give you context for what I mean).
-  - For each protocol created, include: example targets, a detailed treatment hierarchy with clear criteria for advancement and generalization, explicit fading instructions (describe when and how to fade supports as accuracy improves), and at least one peer-reviewed source.
+Long-term Goal: ${manualGoals.longTermGoal}
 
-2️⃣ Provide 3 creative, age-appropriate, specific engagement ideas. Each idea must describe the actual activity, not just a theme. Include materials or props if helpful. Be specific and detailed and creative. 
+Short-term Objectives:
+${manualGoals.objectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n')}
 
-3️⃣ Write a short, 2–3 sentence patient summary, including how family/teachers can support generalization.
+---
 
-✅ MUST-HAVES:
-- Never blend protocols across deficits.
-- Use precise clinical terminology. Do not oversimplify.
-- Identify and address all relevant subcategories or error patterns for the disorder area. For example, for /r/ articulation, distinguish between postvocalic /r/ and /r/ blends if age-appropriate.
-- Do not oversimplify. Be detailed and specific and reference the user input as much as possible. 
-- Ensure all recommendations are consistent with current clinical standards for pediatric SLP.
+Please provide an evidence-based treatment protocol and engagement ideas for this goal.
 
-Please provide your response as a JSON object with the following structure:
+**CRITICAL: You must respond with valid JSON only. Use this exact structure:**
+
 {
-  "treatmentProtocols": [
+  "patientSummary": "2-3 sentence summary of how this goal will improve communication and how family/teachers can help",
+  "deficitCards": [
     {
-      "deficitArea": "...",
-      "name": "...",
-      "targets": ["..."],
-      "hierarchy": ["..."],
-      "fadingSupports": "...",
-      "references": ["..."]
+      "deficitName": "Goal Area",
+      "longTermGoal": "${manualGoals.longTermGoal}",
+      "shortTermObjectives": ${JSON.stringify(manualGoals.objectives)},
+      "evidenceBasedProtocol": {
+        "name": "Protocol name",
+        "duration": "Session duration",
+        "frequency": "Frequency",
+        "exampleTargets": "Specific examples",
+        "hierarchy": "Treatment progression",
+        "cuesAndFading": "Cue strategies and fading",
+        "citation": "Citation"
+      },
+      "engagementIdeas": [
+        "Engagement idea 1",
+        "Engagement idea 2", 
+        "Engagement idea 3"
+      ]
     }
-  ],
-  "engagementIdeas": ["...", "...", "..."],
-  "summary": "..."
+  ]
 }
-`;
+
+Respond with ONLY the JSON object, no additional text.`;
 
     // Call OpenAI
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -80,7 +94,10 @@ Please provide your response as a JSON object with the following structure:
       body: JSON.stringify({
         model: "gpt-4",
         messages: [
-          { role: "system", content: "You are an expert SLP creating therapy plans." },
+          { 
+            role: "system", 
+            content: "You are an expert SLP creating therapy plans. You must respond with valid JSON only." 
+          },
           { role: "user", content: prompt }
         ],
         temperature: 0.7,
@@ -93,9 +110,15 @@ Please provide your response as a JSON object with the following structure:
     const aiContent = openaiData.choices[0]?.message?.content;
 
     // Parse AI response (extract JSON)
-    const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON found in AI response");
+    const cleaned = aiContent.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON found in AI response: " + aiContent);
     const aiOutput = JSON.parse(jsonMatch[0]);
+
+    // Validate the structure
+    if (!aiOutput.patientSummary || !aiOutput.deficitCards || !Array.isArray(aiOutput.deficitCards)) {
+      throw new Error("Invalid JSON structure: missing patientSummary or deficitCards");
+    }
 
     // Save to Supabase
     const supabase = createClient(
@@ -116,8 +139,9 @@ Please provide your response as a JSON object with the following structure:
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
+    console.error("Edge Function Error:", error && (error.message || JSON.stringify(error)));
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: error && (error.message || JSON.stringify(error)) }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
