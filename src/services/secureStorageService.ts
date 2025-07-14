@@ -10,7 +10,7 @@ class SecureStorageService {
   saveTherapyPlan(plan: TherapyPlanData): void {
     try {
       // Validate plan data before storing
-      if (!plan.id || !plan.patientData || !plan.longTermGoal) {
+      if (!plan.id || !plan.patientData || !plan.patientSummary || !plan.deficitCards || !Array.isArray(plan.deficitCards)) {
         throw new Error('Invalid therapy plan data');
       }
 

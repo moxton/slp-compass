@@ -126,12 +126,12 @@ const PatientPage = () => {
             />
           </div>
           {/* Hero Section */}
-          <div className="text-center mb-10">
+          <div className="text-center mb-6"> {/* reduced from mb-10 */}
             <div className="flex flex-col items-center justify-center mb-2">
               <img src="/compass.svg" alt="Compass Logo" className="w-14 h-14 mb-2" />
               <h1 className="text-4xl font-bold text-blue-600">SLP Compass</h1>
             </div>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-2"> {/* reduced from mb-8 */}
               Effortless, evidence-based therapy planning for speech-language pathologists
             </p>
           </div>
@@ -143,10 +143,12 @@ const PatientPage = () => {
           )}
           {currentStep === 'loading' && <LoadingSpinner />}
           {currentStep === 'output' && therapyPlan && (
-            <TherapyPlan 
-              plan={therapyPlan} 
-              onNewPlan={handleNewPlan}
-            />
+            <div className="mt-2"> {/* reduced from default, brings plan up */}
+              <TherapyPlan 
+                plan={therapyPlan} 
+                onNewPlan={handleNewPlan}
+              />
+            </div>
           )}
         </div>
       </main>

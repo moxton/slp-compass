@@ -1,4 +1,4 @@
-import type { PatientData, TherapyPlanData } from "@/types";
+import type { PatientData, TherapyPlanData, DeficitCard } from "@/types";
 
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
@@ -26,7 +26,7 @@ export const generateTherapyPlan = async (patientData: PatientData): Promise<The
       messages: [
         {
           role: 'system',
-          content: 'You are an expert pediatric speech-language pathologist with extensive experience in creating evidence-based therapy plans for children with communication disorders. You create detailed, clinically appropriate goals and treatment protocols.'
+          content: 'You are an expert pediatric speech-language pathologist with extensive experience in creating evidence-based therapy plans for children with communication disorders. You create detailed, clinically appropriate goals and treatment protocols. You must respond with valid JSON only.'
         },
         {
           role: 'user',
@@ -34,7 +34,7 @@ export const generateTherapyPlan = async (patientData: PatientData): Promise<The
         }
       ],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 3000,
     }),
   });
 
@@ -76,7 +76,7 @@ export const generateTreatmentProtocol = async (data: PatientData & { manualGoal
       messages: [
         {
           role: 'system',
-          content: 'You are an expert pediatric speech-language pathologist with extensive experience in creating evidence-based therapy plans for children with communication disorders. You create detailed, clinically appropriate treatment protocols and engagement strategies.'
+          content: 'You are an expert pediatric speech-language pathologist with extensive experience in creating evidence-based therapy plans for children with communication disorders. You create detailed, clinically appropriate treatment protocols and engagement strategies. You must respond with valid JSON only.'
         },
         {
           role: 'user',
@@ -103,209 +103,288 @@ export const generateTreatmentProtocol = async (data: PatientData & { manualGoal
 };
 
 const createTherapyPlanPrompt = (patientData: PatientData): string => {
-  const disorderAreaMap: Record<string, string> = {
-    'articulation-phonology': 'articulation and phonological disorders',
-    'fluency': 'fluency disorders (stuttering)',
-    'expressive-language': 'expressive language disorders',
-    'receptive-language': 'receptive language disorders',
-    'social-pragmatics': 'social-pragmatic communication disorders',
-    'executive-function': 'executive function difficulties',
-    'literacy': 'literacy and reading disorders',
-  };
+  return `You are an expert pediatric speech-language pathologist (SLP) with deep knowledge of evidence-based, developmentally appropriate best practices.
 
-  const primaryArea = disorderAreaMap[patientData.disorderArea] || patientData.disorderArea;
-  const secondaryArea = patientData.secondaryDisorderArea 
-    ? ` with secondary concerns in ${disorderAreaMap[patientData.secondaryDisorderArea] || patientData.secondaryDisorderArea}`
-    : '';
+---
 
-  return `Create a comprehensive therapy plan for a ${patientData.age}-year-old child with ${primaryArea}${secondaryArea}.
+INPUT:
+- Patient Initials: ${patientData.patientInitials || '[Initials or pseudonym only]'}
+- Age: ${patientData.age}
+- Primary Disorder Area: ${patientData.disorderArea}
+- Secondary Disorder Area: ${patientData.secondaryDisorderArea || ''}
+- Deficits: ${patientData.deficits || ''}
+- Specific Errors: ${patientData.specificErrors || ''}
+- Strengths: ${patientData.strengths || ''}
+- Hobbies & Interests: ${patientData.hobbies || ''}
+- Additional Details (optional): ${patientData.additionalDetails || ''}
 
-Patient Description: ${patientData.description}
+---
 
-Please provide:
+TASKS:
 
-1. ONE long-term goal (6-12 months) that is comprehensive and measurable
+1️⃣ **Analyze the input and identify each distinct communication disorder or skill deficit.**
 
-2. THREE SMART short-term objectives that break down the long-term goal:
-   - Each objective should be clearly formatted with SMART components
-   - Format: "OBJECTIVE: [clear objective statement]"
-   - Then provide: SPECIFIC: [what exactly], MEASURABLE: [how measured], ACHIEVABLE: [why realistic], RELEVANT: [why important], TIME-BOUND: [timeframe]
+2️⃣ **Generate a patient summary (2-3 sentences) describing how the goals will improve daily communication and how family/teachers can help generalize new skills.**
 
-3. Evidence-based treatment protocol including:
-   - Duration and frequency of sessions
-   - 5-7 specific target skills or behaviors
-   - 4-5 step treatment hierarchy (progression from easier to harder)
-   - 4-5 specific prompts, cues, and scaffolding strategies
+3️⃣ **For each identified deficit, generate:**
+- A clear, individualized long-term goal that is detailed, specific, and relevant to daily communication
+- 3 short-term objectives as a numbered list, each demonstrating SMART qualities
+- An evidence-based treatment protocol including:
+  - Protocol name and description
+  - Duration and frequency
+  - Example targets
+  - Treatment hierarchy
+  - Cues and fading strategies
+  - Citation
+- 3 creative, age-appropriate engagement ideas
 
-Format your response clearly with headers and bullet points for easy reading.`;
+---
+
+**CRITICAL: You must respond with valid JSON only. Use this exact structure:**
+
+{
+  "patientSummary": "2-3 sentence summary of how goals will improve communication and how family/teachers can help",
+  "deficitCards": [
+    {
+      "deficitName": "Name of the deficit (e.g., 'Velar Fronting', 'Cluster Reduction')",
+      "longTermGoal": "Detailed long-term goal statement",
+      "shortTermObjectives": [
+        "Objective 1 with SMART criteria",
+        "Objective 2 with SMART criteria", 
+        "Objective 3 with SMART criteria"
+      ],
+      "evidenceBasedProtocol": {
+        "name": "Protocol name (e.g., 'Cycles Phonological Remediation Approach')",
+        "duration": "Session duration (e.g., '30-minute sessions')",
+        "frequency": "Frequency (e.g., '2x/week for 6-8 weeks per cycle')",
+        "exampleTargets": "Specific examples (e.g., '/k/ and /g/ in isolation, syllables, words, short phrases')",
+        "hierarchy": "Treatment progression (e.g., 'Auditory bombardment → production practice in isolation → word → phrase → short sentence → generalization')",
+        "cuesAndFading": "Cue strategies and fading (e.g., 'Use tactile cues for tongue placement and visual models; fade to independent production as stimulability increases')",
+        "citation": "Citation (e.g., 'Hodson, B.W. (2010). Cycles Phonological Remediation Approach.')"
+      },
+      "engagementIdeas": [
+        "Engagement idea 1",
+        "Engagement idea 2",
+        "Engagement idea 3"
+      ]
+    }
+  ]
+}
+
+**Guidelines:**
+- Use precise clinical language and current best practices
+- Each goal and objective must be fully SMART
+- If any input is missing, infer reasonable details based on age and disorder norms
+- Format for easy copy-paste into clinical documents
+- Respond with ONLY the JSON object, no additional text
+`;
 };
 
 const createTreatmentProtocolPrompt = (data: PatientData & { manualGoals: { longTermGoal: string; objectives: string[] } }): string => {
-  const disorderAreaMap: Record<string, string> = {
-    'articulation-phonology': 'articulation and phonological disorders',
-    'fluency': 'fluency disorders (stuttering)',
-    'expressive-language': 'expressive language disorders',
-    'receptive-language': 'receptive language disorders',
-    'social-pragmatics': 'social-pragmatic communication disorders',
-    'executive-function': 'executive function difficulties',
-    'literacy': 'literacy and reading disorders',
-  };
+  return `You are an expert pediatric speech-language pathologist (SLP) with deep knowledge of evidence-based, developmentally appropriate best practices.
 
-  const primaryArea = disorderAreaMap[data.disorderArea] || data.disorderArea;
-  const secondaryArea = data.secondaryDisorderArea 
-    ? ` with secondary concerns in ${disorderAreaMap[data.secondaryDisorderArea] || data.secondaryDisorderArea}`
-    : '';
+---
 
-  return `Create an evidence-based treatment protocol and engagement ideas for a ${data.age}-year-old child with ${primaryArea}${secondaryArea}.
+INPUT:
+- Patient Initials: ${data.patientInitials || '[Initials or pseudonym only]'}
+- Age: ${data.age}
+- Primary Disorder Area: ${data.disorderArea}
+- Secondary Disorder Area: ${data.secondaryDisorderArea || ''}
+- Deficits: ${data.deficits || ''}
+- Specific Errors: ${data.specificErrors || ''}
+- Strengths: ${data.strengths || ''}
+- Hobbies & Interests: ${data.hobbies || ''}
+- Additional Details (optional): ${data.additionalDetails || ''}
 
-Patient Description: ${data.description}
+---
 
 Long-term Goal: ${data.manualGoals.longTermGoal}
 
 Short-term Objectives:
 ${data.manualGoals.objectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n')}
 
-Please provide:
+---
 
-1. Evidence-based treatment protocol including:
-   - Duration and frequency of sessions
-   - 5-7 specific target skills or behaviors
-   - 4-5 step treatment hierarchy (progression from easier to harder)
-   - 4-5 specific prompts, cues, and scaffolding strategies
+Please provide an evidence-based treatment protocol and engagement ideas for this goal.
 
-2. 2-4 creative, age-appropriate engagement ideas such as themes, games, toys, crafts, or manipulatives tailored to the child's age and goals.
+**CRITICAL: You must respond with valid JSON only. Use this exact structure:**
 
-Format your response clearly with headers and bullet points for easy reading.`;
+{
+  "patientSummary": "2-3 sentence summary of how this goal will improve communication and how family/teachers can help",
+  "deficitCards": [
+    {
+      "deficitName": "Goal Area",
+      "longTermGoal": "${data.manualGoals.longTermGoal}",
+      "shortTermObjectives": ${JSON.stringify(data.manualGoals.objectives)},
+      "evidenceBasedProtocol": {
+        "name": "Protocol name",
+        "duration": "Session duration",
+        "frequency": "Frequency",
+        "exampleTargets": "Specific examples",
+        "hierarchy": "Treatment progression",
+        "cuesAndFading": "Cue strategies and fading",
+        "citation": "Citation"
+      },
+      "engagementIdeas": [
+        "Engagement idea 1",
+        "Engagement idea 2", 
+        "Engagement idea 3"
+      ]
+    }
+  ]
+}
+
+Respond with ONLY the JSON object, no additional text.`;
 };
 
 const parseTherapyPlan = (planText: string, patientData: PatientData): TherapyPlanData => {
-  const lines = planText.split('\n').filter(line => line.trim());
-  
-  const goalIndex = lines.findIndex(line => 
-    line.toLowerCase().includes('long-term goal') || 
-    line.toLowerCase().includes('long term goal')
-  );
-  const longTermGoal = lines[goalIndex + 1] || "Long-term goal will be established based on comprehensive assessment.";
-
-  const objectives = [
-    {
-      id: '1',
-      text: `Patient will demonstrate improved ${patientData.disorderArea.replace('-', ' ')} skills in structured activities.`,
-      specific: 'Target specific communication behaviors during therapy sessions',
-      measurable: 'Achieve 80% accuracy across 3 consecutive sessions',
-      achievable: 'Based on current skill level and developmental stage',
-      relevant: 'Directly addresses primary area of concern',
-      timebound: '3-month timeframe with weekly progress monitoring'
-    },
-    {
-      id: '2',
-      text: `Patient will generalize skills to classroom/home environment.`,
-      specific: 'Apply learned skills in natural communication contexts',
-      measurable: 'Demonstrate skills in 4 out of 5 opportunities',
-      achievable: 'With appropriate scaffolding and support',
-      relevant: 'Essential for functional communication',
-      timebound: '6-month timeframe with monthly assessments'
-    },
-    {
-      id: '3',
-      text: `Patient will increase independence in communication attempts.`,
-      specific: 'Initiate communication without prompting',
-      measurable: 'Self-initiate 5 times per 30-minute session',
-      achievable: 'Progressive reduction of prompts over time',
-      relevant: 'Promotes confident communication',
-      timebound: '4-month timeframe with bi-weekly reviews'
+  try {
+    // Try to extract JSON from the response
+    const jsonMatch = planText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No JSON found in response');
     }
-  ];
 
-  const treatmentProtocol = {
-    duration: '45-minute sessions',
-    frequency: '2-3 times per week',
-    targets: [
-      'Improve accuracy of target sounds/skills',
-      'Increase spontaneous use of target behaviors',
-      'Develop self-monitoring abilities',
-      'Enhance communication confidence',
-      'Strengthen foundational skills',
-      'Promote generalization across contexts'
-    ],
-    hierarchy: [
-      'Isolated skill practice with maximum support',
-      'Structured activities with moderate prompting',
-      'Semi-structured practice with minimal cues',
-      'Natural conversation with occasional support',
-      'Independent use in various contexts'
-    ],
-    prompts: [
-      'Visual cues and modeling demonstrations',
-      'Verbal prompts and phonetic placement cues',
-      'Tactile feedback and kinesthetic support',
-      'Positive reinforcement and encouraging feedback',
-      'Self-monitoring checklists and visual supports'
-    ],
-    references: [
-      'American Speech-Language-Hearing Association (ASHA) Clinical Guidelines',
-      'Evidence-Based Practice in Communication Disorders (ASHA, 2023)'
-    ]
-  };
+    const parsed = JSON.parse(jsonMatch[0]);
+    
+    if (!parsed.patientSummary || !parsed.deficitCards) {
+      throw new Error('Invalid JSON structure');
+    }
 
-  return {
-    id: Date.now().toString(),
-    patientData,
-    longTermGoal: longTermGoal.replace(/^\d+\.\s*/, '').trim(),
-    objectives,
-    treatmentProtocol,
-    createdAt: new Date().toISOString(),
-  };
+    const deficitCards: DeficitCard[] = parsed.deficitCards.map((card: any, index: number) => ({
+      id: (index + 1).toString(),
+      deficitName: card.deficitName || `Deficit ${index + 1}`,
+      longTermGoal: card.longTermGoal || '',
+      shortTermObjectives: card.shortTermObjectives || [],
+      evidenceBasedProtocol: {
+        name: card.evidenceBasedProtocol?.name || '',
+        duration: card.evidenceBasedProtocol?.duration || '',
+        frequency: card.evidenceBasedProtocol?.frequency || '',
+        exampleTargets: card.evidenceBasedProtocol?.exampleTargets || '',
+        hierarchy: card.evidenceBasedProtocol?.hierarchy || '',
+        cuesAndFading: card.evidenceBasedProtocol?.cuesAndFading || '',
+        citation: card.evidenceBasedProtocol?.citation || ''
+      },
+      engagementIdeas: card.engagementIdeas || []
+    }));
+
+    return {
+      id: Date.now().toString(),
+      patientData,
+      patientSummary: parsed.patientSummary,
+      deficitCards,
+      createdAt: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error('Error parsing therapy plan:', error);
+    console.error('Raw response:', planText);
+    
+    // Fallback to default structure
+    return {
+      id: Date.now().toString(),
+      patientData,
+      patientSummary: `${patientData.patientInitials || 'Patient'} will target ${patientData.disorderArea.replace('-', ' ')} using evidence-based protocols with clear hierarchies and cues. These goals will increase speech intelligibility and functional communication. Parents and teachers can support generalization through home practice and modeling target skills during daily activities.`,
+      deficitCards: [{
+        id: '1',
+        deficitName: patientData.disorderArea.replace('-', ' '),
+        longTermGoal: `Patient will demonstrate improved ${patientData.disorderArea.replace('-', ' ')} skills in structured activities.`,
+        shortTermObjectives: [
+          `Patient will demonstrate improved ${patientData.disorderArea.replace('-', ' ')} skills in structured activities.`,
+          `Patient will generalize skills to classroom/home environment.`,
+          `Patient will increase independence in communication attempts.`
+        ],
+        evidenceBasedProtocol: {
+          name: 'Evidence-Based Protocol',
+          duration: '45-minute sessions',
+          frequency: '2-3 times per week',
+          exampleTargets: 'Target specific communication behaviors',
+          hierarchy: 'Isolated skill practice → Structured activities → Semi-structured practice → Natural conversation → Independent use',
+          cuesAndFading: 'Visual cues and modeling demonstrations; fade to independent production',
+          citation: 'American Speech-Language-Hearing Association (ASHA) Clinical Guidelines'
+        },
+        engagementIdeas: [
+          'Use age-appropriate games and activities',
+          'Incorporate patient interests and hobbies',
+          'Provide positive reinforcement and encouragement'
+        ]
+      }],
+      createdAt: new Date().toISOString(),
+    };
+  }
 };
 
 const parseManualGoalsPlan = (planText: string, data: PatientData & { manualGoals: { longTermGoal: string; objectives: string[] } }): TherapyPlanData => {
-  const objectives = data.manualGoals.objectives.map((obj, index) => ({
-    id: (index + 1).toString(),
-    text: obj,
-    specific: 'User-defined objective',
-    measurable: 'As specified by clinician',
-    achievable: 'Based on clinical judgment',
-    relevant: 'Addresses identified needs',
-    timebound: 'Per treatment timeline'
-  }));
+  try {
+    // Try to extract JSON from the response
+    const jsonMatch = planText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No JSON found in response');
+    }
 
-  const treatmentProtocol = {
-    duration: '45-minute sessions',
-    frequency: '2-3 times per week',
-    targets: [
-      'Improve accuracy of target sounds/skills',
-      'Increase spontaneous use of target behaviors',
-      'Develop self-monitoring abilities',
-      'Enhance communication confidence',
-      'Strengthen foundational skills',
-      'Promote generalization across contexts'
-    ],
-    hierarchy: [
-      'Isolated skill practice with maximum support',
-      'Structured activities with moderate prompting',
-      'Semi-structured practice with minimal cues',
-      'Natural conversation with occasional support',
-      'Independent use in various contexts'
-    ],
-    prompts: [
-      'Visual cues and modeling demonstrations',
-      'Verbal prompts and phonetic placement cues',
-      'Tactile feedback and kinesthetic support',
-      'Positive reinforcement and encouraging feedback',
-      'Self-monitoring checklists and visual supports'
-    ],
-    references: [
-      'American Speech-Language-Hearing Association (ASHA) Clinical Guidelines',
-      'Evidence-Based Practice in Communication Disorders (ASHA, 2023)'
-    ]
-  };
+    const parsed = JSON.parse(jsonMatch[0]);
+    
+    if (!parsed.patientSummary || !parsed.deficitCards) {
+      throw new Error('Invalid JSON structure');
+    }
 
-  return {
-    id: Date.now().toString(),
-    patientData: data,
-    longTermGoal: data.manualGoals.longTermGoal,
-    objectives,
-    treatmentProtocol,
-    createdAt: new Date().toISOString(),
-  };
+    const deficitCards: DeficitCard[] = parsed.deficitCards.map((card: any, index: number) => ({
+      id: (index + 1).toString(),
+      deficitName: card.deficitName || `Goal Area`,
+      longTermGoal: card.longTermGoal || data.manualGoals.longTermGoal,
+      shortTermObjectives: card.shortTermObjectives || data.manualGoals.objectives,
+      evidenceBasedProtocol: {
+        name: card.evidenceBasedProtocol?.name || 'Evidence-Based Protocol',
+        duration: card.evidenceBasedProtocol?.duration || '45-minute sessions',
+        frequency: card.evidenceBasedProtocol?.frequency || '2-3 times per week',
+        exampleTargets: card.evidenceBasedProtocol?.exampleTargets || 'Target specific communication behaviors',
+        hierarchy: card.evidenceBasedProtocol?.hierarchy || 'Isolated skill practice → Structured activities → Semi-structured practice → Natural conversation → Independent use',
+        cuesAndFading: card.evidenceBasedProtocol?.cuesAndFading || 'Visual cues and modeling demonstrations; fade to independent production',
+        citation: card.evidenceBasedProtocol?.citation || 'American Speech-Language-Hearing Association (ASHA) Clinical Guidelines'
+      },
+      engagementIdeas: card.engagementIdeas || [
+        'Use age-appropriate games and activities',
+        'Incorporate patient interests and hobbies',
+        'Provide positive reinforcement and encouragement'
+      ]
+    }));
+
+    return {
+      id: Date.now().toString(),
+      patientData: data,
+      patientSummary: parsed.patientSummary,
+      deficitCards,
+      createdAt: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error('Error parsing manual goals plan:', error);
+    console.error('Raw response:', planText);
+    
+    // Fallback to default structure
+    return {
+      id: Date.now().toString(),
+      patientData: data,
+      patientSummary: `${data.patientInitials || 'Patient'} will target ${data.disorderArea.replace('-', ' ')} using evidence-based protocols with clear hierarchies and cues. These goals will increase speech intelligibility and functional communication. Parents and teachers can support generalization through home practice and modeling target skills during daily activities.`,
+      deficitCards: [{
+        id: '1',
+        deficitName: 'Goal Area',
+        longTermGoal: data.manualGoals.longTermGoal,
+        shortTermObjectives: data.manualGoals.objectives,
+        evidenceBasedProtocol: {
+          name: 'Evidence-Based Protocol',
+          duration: '45-minute sessions',
+          frequency: '2-3 times per week',
+          exampleTargets: 'Target specific communication behaviors',
+          hierarchy: 'Isolated skill practice → Structured activities → Semi-structured practice → Natural conversation → Independent use',
+          cuesAndFading: 'Visual cues and modeling demonstrations; fade to independent production',
+          citation: 'American Speech-Language-Hearing Association (ASHA) Clinical Guidelines'
+        },
+        engagementIdeas: [
+          'Use age-appropriate games and activities',
+          'Incorporate patient interests and hobbies',
+          'Provide positive reinforcement and encouragement'
+        ]
+      }],
+      createdAt: new Date().toISOString(),
+    };
+  }
 };

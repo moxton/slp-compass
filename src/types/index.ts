@@ -1,12 +1,12 @@
 export interface PatientData {
   age: number;
   disorderArea: string;
+  deficits: string;
+  specificErrors: string;
+  strengths: string;
+  hobbies: string;
   secondaryDisorderArea?: string;
   patientInitials?: string;
-  deficits?: string;
-  specificErrors?: string;
-  strengths?: string;
-  hobbies?: string;
   additionalDetails?: string;
 }
 
@@ -31,15 +31,28 @@ export interface TreatmentProtocol {
   fadingSupports?: string;
 }
 
+export interface DeficitCard {
+  id: string;
+  deficitName: string;
+  longTermGoal: string;
+  shortTermObjectives: string[];
+  evidenceBasedProtocol: {
+    name: string;
+    duration: string;
+    frequency: string;
+    exampleTargets: string;
+    hierarchy: string;
+    cuesAndFading: string;
+    citation: string;
+  };
+  engagementIdeas: string[];
+}
+
 export interface TherapyPlanData {
   id: string;
   patientData: PatientData;
-  longTermGoal: string;
-  objectives: Objective[];
-  treatmentProtocol: TreatmentProtocol;
-  treatmentProtocols?: TreatmentProtocol[]; // for multiple protocols
-  summary?: string;
-  engagementIdeas?: string[];
+  patientSummary: string;
+  deficitCards: DeficitCard[];
   createdAt: string;
 }
 
