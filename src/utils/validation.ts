@@ -23,10 +23,10 @@ export const patientDataSchema = z.object({
   secondaryDisorderArea: z.string()
     .max(50, 'Secondary disorder area name is too long')
     .optional(),
-  deficits: z.string().max(1000, 'Deficits must be less than 1000 characters').optional(),
-  specificErrors: z.string().max(1000, 'Specific errors must be less than 1000 characters').optional(),
-  strengths: z.string().max(1000, 'Strengths must be less than 1000 characters').optional(),
-  hobbies: z.string().max(1000, 'Hobbies must be less than 1000 characters').optional(),
+  deficits: z.string().max(1000, 'Deficits must be less than 1000 characters'),
+  specificErrors: z.string().max(1000, 'Specific errors must be less than 1000 characters'),
+  strengths: z.string().max(1000, 'Strengths must be less than 1000 characters'),
+  hobbies: z.string().max(1000, 'Hobbies must be less than 1000 characters'),
   additionalDetails: z.string().max(1000, 'Additional details must be less than 1000 characters').optional(),
 });
 
@@ -44,7 +44,8 @@ export const manualGoalsSchema = z.object({
 });
 
 // Sanitize HTML content to prevent XSS
-export const sanitizeHtml = (input: string): string => {
+export const sanitizeHtml = (input?: string): string => {
+  if (!input) return "";
   return input
     .replace(/[<>]/g, '') // Remove potential HTML tags
     .replace(/javascript:/gi, '') // Remove javascript: protocols
