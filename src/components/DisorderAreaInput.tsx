@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronDown, Edit3 } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface DisorderAreaInputProps {
-  label: string;
+  label: ReactNode;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
