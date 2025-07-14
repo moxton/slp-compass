@@ -66,13 +66,26 @@ export const usePatientForm = ({ onSubmit, onManualSubmit }: PatientInputProps) 
     const errors: string[] = [];
     setValidationErrors([]);
 
+    // Required fields
     if (!formData.age || parseInt(formData.age) < 2 || parseInt(formData.age) > 18) {
-      errors.push("Patient age must be between 2 and 18 years");
+      errors.push("Patient age (2-18) is required");
     }
-
     if (!formData.disorderArea) {
       errors.push("Primary disorder area is required");
     }
+    if (!formData.deficits || formData.deficits.trim().length === 0) {
+      errors.push("Deficits are required");
+    }
+    if (!formData.specificErrors || formData.specificErrors.trim().length === 0) {
+      errors.push("Specific errors are required");
+    }
+    if (!formData.strengths || formData.strengths.trim().length === 0) {
+      errors.push("Strengths are required");
+    }
+    if (!formData.hobbies || formData.hobbies.trim().length === 0) {
+      errors.push("Hobbies & Interests are required");
+    }
+    // Do NOT check additionalDetails as required
 
     if (!goalOption) {
       errors.push("Please select how you want to handle goals and objectives");
@@ -104,29 +117,24 @@ export const usePatientForm = ({ onSubmit, onManualSubmit }: PatientInputProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) {
       toast({
-        title: "Validation Error",
-        description: "Please fix the errors below before submitting.",
+        title: "Missing Required Fields",
+        description: validationErrors.length > 0 ? validationErrors.join("; ") : "Please fill out all required fields.",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      if (!formData.age || !formData.disorderArea) {
-        throw new ValidationError("Required fields are missing");
-      }
-
       const patientData: PatientData = {
         age: parseInt(formData.age),
         disorderArea: formData.disorderArea,
         secondaryDisorderArea: formData.secondaryDisorderArea === 'none' ? undefined : formData.secondaryDisorderArea || undefined,
-        deficits: formData.deficits || undefined,
-        specificErrors: formData.specificErrors || undefined,
-        strengths: formData.strengths || undefined,
-        hobbies: formData.hobbies || undefined,
+        deficits: formData.deficits,
+        specificErrors: formData.specificErrors,
+        strengths: formData.strengths,
+        hobbies: formData.hobbies,
         additionalDetails: formData.additionalDetails || undefined,
         patientInitials: formData.patientInitials || undefined,
       };
@@ -137,19 +145,15 @@ export const usePatientForm = ({ onSubmit, onManualSubmit }: PatientInputProps) 
         if (!longTermGoal.trim()) {
           throw new ValidationError("Long-term goal is required");
         }
-        
         const filteredObjectives = objectives.filter(obj => obj.trim());
         if (filteredObjectives.length === 0) {
           throw new ValidationError("At least one objective is required");
         }
-
-        const manualGoals = {
+        const manualGoals: { longTermGoal: string; objectives: string[] } = {
           longTermGoal: longTermGoal.trim(),
           objectives: filteredObjectives,
         };
-
         const validatedManualGoals = validateManualGoals(manualGoals);
-
         onManualSubmit({
           ...validatedPatientData,
           manualGoals: validatedManualGoals,
